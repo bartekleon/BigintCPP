@@ -1,0 +1,11 @@
+compiler: clang
+
+before_install: make install-deps
+
+install:
+    - make build
+    - make
+
+scripts:
+    - ./bin/bigint-benches.o
+    - ./bin/bigint-tests.o
