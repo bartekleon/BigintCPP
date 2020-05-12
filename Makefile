@@ -1,11 +1,15 @@
-bigint: bin/bigint.o
-	g++ bin/bigint.o -o big-int
+# Building tests
+test: tests/bigint.o
+	g++ src/bigint-test.cpp -o bin/tests-bigint.o 
 
-bigint-tests: tests/bigint.o
-	g++ src/bigint-test.cpp -o 
+# Installing & Building deps
+install: 
+	./scripts/install.sh
 
+# Building bigint
 build: src/bigint.cpp
-	g++ -c src/bigint.cpp -o bin/bigint.o
+	g++ -c src/bigint.cpp -o bin/benches-bigint.o
 
+# Cleaning executables
 clean: 
 	rm bin/*.o
