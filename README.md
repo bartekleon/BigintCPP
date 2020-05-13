@@ -1,1 +1,2 @@
-[![Build Status](https://travis-ci.org/kmdrGroch/BigintCPP.svg?branch=master)](https://travis-ci.org/kmdrGroch/BigintCPP) [![codecov](https://codecov.io/gh/kmdrGroch/BigintCPP/branch/master/graph/badge.svg)](https://https://codecov.io/gh/kmdrGroch/BigintCPP)
+[![Build Status](https://travis-ci.com/kmdrGroch/BigintCPP.svg?branch=master)](https://travis-ci.com/kmdrGroch/BigintCPP)
+[![codecov](https://codecov.io/gh/kmdrGroch/BigintCPP/branch/master/graph/badge.svg)](https://codecov.io/gh/kmdrGroch/BigintCPP)
