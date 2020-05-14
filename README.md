@@ -1,7 +1,9 @@
 [![Build Status](https://travis-ci.com/kmdrGroch/BigintCPP.svg?branch=master)](https://travis-ci.com/kmdrGroch/BigintCPP) [![codecov](https://codecov.io/gh/kmdrGroch/BigintCPP/branch/master/graph/badge.svg)](https://codecov.io/gh/kmdrGroch/BigintCPP)
 
 [Description](#description)
+
 [Operators](#operators)
+
 *  [Addition](#addition)
 *  [Subtraction](#subtraction)
 *  [Multiplication](#multiplication)
@@ -11,7 +13,9 @@
 *  [Comparison](#comparison)
 *  [Access](#access)
 *  [Stream operators](#stream-operators)
+
 [Methods](#methods)
+
 *  [pow](#powint)
 *  [clear](#clear)
 *  [abs](#abs)
@@ -19,7 +23,9 @@
 *  [isEven](#isEven)
 *  [toString](#tostring)
 *  [clone](#clone)
+
 [Functions](#functions)
+
 *  [toString](#tostringbigint)
 
 # Description
