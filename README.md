@@ -23,7 +23,9 @@
 *  [isEven](#isEven)
 *  [toString](#tostring)
 *  [clone](#clone)
-\  [Functions](#functions)
+
+[Functions](#functions)
+
 *  [toString](#tostringbigint)
 
 # Description
