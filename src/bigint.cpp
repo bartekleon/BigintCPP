@@ -28,14 +28,21 @@ Bigint::Bigint(std::string stringInteger) {
 	positive = stringInteger[0] != '-';
 
 	while (true) {
-		if (size <= 0) break;
-		if (!positive && size <= 1) break;
+		if (size <= 0) {
+			break;
+		}
+		if (!positive && size <= 1) {
+			break;
+		}
 
 		int length = 0;
 		int num = 0;
 		int prefix = 1;
+
 		for (int i = size - 1; i >= 0 && i >= size - 9; --i) {
-			if (stringInteger[i] < '0' || stringInteger[i] > '9') break;
+			if (stringInteger[i] < '0' || stringInteger[i] > '9') {
+				break;
+			}
 			num += (stringInteger[i] - '0') * prefix;
 			prefix *= 10;
 			++length;
@@ -465,7 +472,7 @@ Bigint Bigint::operator=(const long long& a) {
 }
 
 int Bigint::operator[](int const& b) {
-	return toString(*this)[b] - '0';
+	return this->toString()[b] - '0';
 }
 
 void Bigint::clear() {
@@ -479,11 +486,15 @@ Bigint& Bigint::abs() {
 	return *this;
 }
 
-std::string Bigint::toString(Bigint const& value) {
+std::string Bigint::toString() {
 	std::ostringstream stream;
-	stream << value;
+	stream << *this;
 
 	return stream.str();
+}
+
+Bigint Bigint::clone() {
+	return Bigint(*this);
 }
 
 int Bigint::segmentLength(int segment) const {
@@ -612,4 +623,11 @@ int Bigint::compare(const Bigint& a) const {
 
 void Bigint::flipPositive() const {
 	this->positive = !this->positive;
+}
+
+std::string toString(Bigint const& value) {
+	std::ostringstream stream;
+	stream << value;
+
+	return stream.str();
 }

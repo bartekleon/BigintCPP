@@ -40,12 +40,13 @@ public:
 	Bigint operator*(long long) const;
 	Bigint& operator*=(long long const&);
 
+	// Division
 	Bigint operator/(Bigint q);
 
 	// Modulo
 	long long operator%(long long const&);
 
-	// Compare
+	// Comparison
 	bool operator<(const Bigint&) const;
 	bool operator>(const Bigint&) const;
 	bool operator<=(const Bigint&) const;
@@ -66,18 +67,21 @@ public:
 	// Helpers
 	void clear();
 	Bigint& abs();
-	void flipPositive() const;
-	std::string toString(Bigint const&);
+	std::string toString();
 	int digits() const;
 	bool isEven();
+	Bigint clone();
 
 	// Power
 	Bigint& pow(int const&);
 
 private:
+	void flipPositive() const;
 	int segmentLength(int) const;
 	Bigint pow(int const&, std::map<int, Bigint>&);
 	int compare(Bigint const&) const; // 0 a == b, -1 a < b, 1 a > b
 };
+
+std::string toString(Bigint const&);
 
 #endif /* BIGINT_H_ */
