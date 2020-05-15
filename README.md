@@ -6,6 +6,7 @@
 
 *  [Addition](#addition)
 *  [Subtraction](#subtraction)
+*  [Unary minus](#unary-minus)
 *  [Multiplication](#multiplication)
 *  [Division](#division)
 *  [Modulo](#modulo)
@@ -21,6 +22,7 @@
 *  [abs](#abs)
 *  [digits](#digits)
 *  [isEven](#isEven)
+*  [isNegative](#isNegative)
 *  [toString](#tostring)
 *  [clone](#clone)
 
@@ -48,6 +50,11 @@ c += 6;
 Bigint a, b, c;
 c = a - b;
 c -= a;
+```
+
+## Unary minus
+```C++
+cout << -Bigint(10) // -10
 ```
 
 ## Multiplication
@@ -143,6 +150,13 @@ Returns true is the number is even.
 ```C++
 Bigint a = 4558;
 cout << a.isEven(); // true
+```
+
+## isNegative()
+Returns true is the number is negative.
+```C++
+Bigint a = -4558;
+cout << a.isNegative(); // true
 ```
 
 ## toString()

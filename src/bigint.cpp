@@ -173,8 +173,7 @@ Bigint& Bigint::operator+=(long long b) {
 	return *this;
 }
 
-Bigint Bigint::operator-(Bigint const& b) const
-{
+Bigint Bigint::operator-(Bigint const& b) const {
 	Bigint c = *this;
 	c -= b;
 
@@ -235,6 +234,11 @@ Bigint& Bigint::operator-=(Bigint const& b) {
 		number.pop_back();
 	}
 
+	return *this;
+}
+
+Bigint Bigint::operator-() {
+	flipPositive();
 	return *this;
 }
 
@@ -345,6 +349,10 @@ bool Bigint::isEven() {
 	}
 
 	return *(number.begin()) % 2 == 0;
+}
+
+bool Bigint::isNegative() {
+	return !this->positive;
 }
 
 //Division

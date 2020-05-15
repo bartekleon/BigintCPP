@@ -34,6 +34,9 @@ public:
 	Bigint operator-(Bigint const&) const;
 	Bigint& operator-=(Bigint const&);
 
+	// Unary minus
+	Bigint operator-();
+
 	// Multiplication
 	Bigint operator*(Bigint const&) const;
 	Bigint& operator*=(Bigint const&);
@@ -70,13 +73,14 @@ public:
 	std::string toString();
 	int digits() const;
 	bool isEven();
+	bool isNegative();
 	Bigint clone();
+	void flipPositive() const;
 
 	// Power
 	Bigint& pow(int const&);
 
 private:
-	void flipPositive() const;
 	int segmentLength(int) const;
 	Bigint pow(int const&, std::map<int, Bigint>&);
 	int compare(Bigint const&) const; // 0 a == b, -1 a < b, 1 a > b
