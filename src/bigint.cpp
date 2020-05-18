@@ -254,13 +254,16 @@ Bigint Bigint::operator*(Bigint const& b) const {
 	std::vector<int>::const_iterator it2;
 	Bigint c = Bigint(0);
 
-	int size = 0;
+	int i = 0;
+	int j = 0;
 
 	for (it1 = number.begin(); it1 != number.end(); ++it1) {
+		j = 0;
 		for (it2 = b.number.begin(); it2 != b.number.end(); ++it2) {
-			c += std::to_string((long long)(*it1) * (*it2)) + std::string(size, '0');
-			size += 9;
+			c += Bigint(std::to_string((long long)(*it1) * (*it2)) + std::string(i + j, '0'));
+			j += 9;
 		}
+		i += 9;
 	}
 
 	if (positive != b.positive) {
