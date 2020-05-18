@@ -58,8 +58,7 @@ Bigint::Bigint(const Bigint& bigint) {
 	this->positive = bigint.positive;
 }
 
-Bigint Bigint::operator+(Bigint const& b) const
-{
+Bigint Bigint::operator+(Bigint const& b) const {
 	Bigint c = *this;
 	c += b;
 
@@ -226,7 +225,7 @@ Bigint& Bigint::operator-=(Bigint const& b) {
 		while (c_seg--) {
 			newstr += str;
 		}
-			
+
 		*this = Bigint(newstr) - *this;
 		positive = false;
 	}
@@ -255,10 +254,16 @@ Bigint Bigint::operator*(Bigint const& b) const {
 	std::vector<int>::const_iterator it2;
 	Bigint c = Bigint(0);
 
+	int i = 0;
+	int j = 0;
+
 	for (it1 = number.begin(); it1 != number.end(); ++it1) {
+		j = 0;
 		for (it2 = b.number.begin(); it2 != b.number.end(); ++it2) {
-			c += (long long)(*it1) * (*it2);
+			c += Bigint(std::to_string((long long)(*it1) * (*it2)) + std::string(i + j, '0'));
+			j += 9;
 		}
+		i += 9;
 	}
 
 	if (positive != b.positive) {
@@ -408,7 +413,7 @@ Bigint Bigint::operator/(Bigint q) {
 
 		std::string temppp(p.digits() - (sub_p.digits()), '0');
 		temppp = "1" + temppp;
-		
+
 		sum_quotient = sum_quotient + (tmp_quotient * temppp);
 
 		tmpx1 = tmpx1 * temppp;
@@ -425,7 +430,7 @@ long long Bigint::operator%(long long const& divisor) {
 
 	for (int i = 0; i < number.size(); i++) {
 		remains = (remains + number[number.size() - i - 1]) % divisor;
-		if (i != number.size() - 1)	{
+		if (i != number.size() - 1) {
 			remains *= base;
 			remains %= divisor;
 		}
@@ -506,7 +511,11 @@ Bigint Bigint::clone() {
 }
 
 int Bigint::segmentLength(int segment) const {
-	return (int)log10(segment);
+	if (segment == 0) {
+		return 0;
+	}
+
+	return (int)log10(segment) + 1;
 }
 
 std::istream& operator>>(std::istream& in, Bigint& a) {
@@ -520,13 +529,13 @@ std::istream& operator>>(std::istream& in, Bigint& a) {
 
 std::ostream& operator<<(std::ostream& out, Bigint const& a) {
 	if (!a.number.size()) {
-		return out << 0;
+		return out << '0';
 	}
 	int i = a.number.size() - 1;
 	for (; i >= 0 && a.number[i] == 0; --i);
 
 	if (i == -1) {
-		return out << 0;
+		return out << '0';
 	}
 	if (!a.positive) {
 		out << '-';
@@ -617,7 +626,7 @@ int Bigint::compare(const Bigint& a) const {
 		return check;
 	}
 
-	for (size_t i(number.size()); i > 0; --i) {
+	for (int i = number.size(); i > 0; --i) {
 		if (number[i - 1] < a.number[i - 1]) {
 			return -1 * check;
 		}
