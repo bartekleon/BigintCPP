@@ -133,24 +133,11 @@ TEST(Clone, Clone) {
 }
 
 TEST(Streams, Streams) {
-	Bigint a;
+	std::string sLine = "2343239041089250841095749017409275918212719";
 
-	std::ifstream infile("tests.txt");
-
-  std::string sLine;
-  if (infile.good()) {
-    getline(infile, sLine);
-
-		infile >> a;
-  }
-
-  infile.close();
-
-	std::string bigintS = a.toString();
-
-	std::string toStr = toString(a);
+	Bigint a(sLine);
 
 	EXPECT_TRUE(a == sLine);
-	EXPECT_TRUE(bigintS == sLine);
-	EXPECT_TRUE(toStr == sLine);
+	EXPECT_TRUE(a.toString() == sLine);
+	EXPECT_TRUE(toString(a) == sLine);
 }
