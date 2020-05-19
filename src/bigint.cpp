@@ -360,7 +360,39 @@ bool Bigint::isNegative() {
 	return !this->positive;
 }
 
-//Division
+Bigint Bigint::getFragment(Bigint& p, int size) {
+	auto it = p.number.end() - 1;
+	int log = log10(*it) + 1;
+
+	if (p.number.size() == 1 || log >= size) {
+		return Bigint(std::to_string((int)(*it / std::pow(10, log - size))));
+	}
+
+	std::string value = "";
+
+	value += std::to_string(*it);
+	size -= log;
+
+	it--;
+
+	for (; it >= p.number.begin(); it--) {
+		if (size == 0) {
+			return Bigint(value);
+		}
+		if (8 < size) {
+			std::string s = std::to_string(*it);
+			value += std::string(9 - s.size(), '0') + s;
+			size -= 9;
+			if (size == 0) {
+				return Bigint(value);
+			}
+		} else {
+			std::string s = std::to_string((int)(*it / std::pow(10, (9 - size))));
+			value += std::string(size - s.size(), '0') + s;
+			return Bigint(value);
+		}
+	}
+}
 
 Bigint Bigint::operator/(Bigint q) {
 	if (q == Bigint()) {
@@ -368,61 +400,85 @@ Bigint Bigint::operator/(Bigint q) {
 	}
 
 	Bigint p = *this;
-	Bigint answer;
-
-	Bigint tmp_quotient, sum_quotient, sub_p, tmpx1;
-
-	bool done_flag = false;
-
 	bool this_sign = this->positive;
 	bool q_sign = q.positive;
 
 	p.positive = true;
 	q.positive = true;
 
-	std::vector<Bigint> look_up(4);
-	look_up[0] = q;
-	look_up[1] = q * 2;
-	look_up[2] = q * 4;
-	look_up[3] = q * 8;
+	if (p < q) {
+		this->clear();
+
+		return *this;
+	}
+	if (number.size() == 1) {
+		number[0] = (int)(number.at(0) / q.number.at(0));
+		positive = this_sign == q_sign;
+
+		return *this;
+	}
+
+	Bigint answer;
+
+	Bigint tmp_quotient, sum_quotient, sub_p, tmpx1;
+
+	bool done_flag = false;
+
+	Bigint look_up[4] = { q, q * 2, q * 4, q * 8 };
+
+	int look_up_digits[4] = {
+		look_up[0].digits(),
+		look_up[1].digits(),
+		look_up[2].digits(),
+		look_up[3].digits()
+	};
 
 	while (true) {
-		sub_p = p;
+		int digitsP = p.digits();
+		int digitsQ = look_up_digits[3];
 
-		for (int i = 0; i < 4; i++) {
-			if (sub_p < look_up[i] && i != 0) {
-				tmpx1 = look_up[i - 1];
-				tmp_quotient = (long long)1 << (i - 1);
-				break;
-			} else if (sub_p < look_up[i] && i == 0) {
-				if (q.digits() >= p.digits()) {
-					done_flag = true;
-					break;
-				}
-			} else if (sub_p == look_up[i] || (sub_p > look_up[i] && i == 3)) {
+		if (digitsP - look_up_digits[0] < 0) {
+			answer = sum_quotient;
+			answer.positive = this_sign == q_sign;
+			return answer;
+		}
+
+		if (digitsP - digitsQ < 0) {
+			sub_p = getFragment(p, look_up_digits[0]);
+		}
+		else {
+			sub_p = getFragment(p, digitsQ);
+		}
+
+
+		for (int i = 3; i >= 0; i--) {
+			if (sub_p >= look_up[i]) {
 				tmpx1 = look_up[i];
+				digitsQ = look_up_digits[i];
 				tmp_quotient = (long long)1 << i;
 				break;
 			}
+			else if (i == 0) {
+				answer = sum_quotient;
+				answer.positive = this_sign == q_sign;
+				return answer;
+			}
 		}
 
-		if (done_flag) {
-			answer = sum_quotient;
-			break;
+		int k = digitsP - look_up_digits[3] - (look_up_digits[3] - digitsQ);
+
+		if (k > 0) {
+			std::string temppp(k, '0');
+			temppp = "1" + temppp;
+
+			sum_quotient = sum_quotient + (tmp_quotient * temppp);
+			tmpx1 = tmpx1 * temppp;
+			p = p - tmpx1;
+		} else {
+			sum_quotient = sum_quotient + tmp_quotient;
+			p = p - tmpx1;
 		}
-
-		std::string temppp(p.digits() - (sub_p.digits()), '0');
-		temppp = "1" + temppp;
-
-		sum_quotient = sum_quotient + (tmp_quotient * temppp);
-
-		tmpx1 = tmpx1 * temppp;
-		p = p - tmpx1;
 	}
-
-	answer.positive = this_sign == q_sign;
-
-	return answer;
 }
 
 long long Bigint::operator%(long long const& divisor) {

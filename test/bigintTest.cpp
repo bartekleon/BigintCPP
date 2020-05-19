@@ -96,7 +96,13 @@ TEST(DivisionTests, DivisionTests) {
 	EXPECT_TRUE((Bigint(-141) / Bigint(2)) == Bigint(-70));
 	EXPECT_TRUE((Bigint(1411) / Bigint(-123)) == Bigint(-11));
 	EXPECT_TRUE((Bigint(-141) / Bigint(-2)) == Bigint(70));
-	
+	EXPECT_TRUE((Bigint("23472390718913") / Bigint(13)) == Bigint("1805568516839"));
+	EXPECT_TRUE(
+		(Bigint("23472331074189168931468914618941490718913") / Bigint("942394729842789"))
+			==
+		Bigint("24907111989160678895558821")
+	);
+
 	ASSERT_ANY_THROW(Bigint(123) / 0);
 }
 
