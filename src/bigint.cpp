@@ -543,7 +543,7 @@ Bigint Bigint::operator=(const long long& a) {
 int Bigint::operator[](int const& b) {
 	int size = this->digits();
 
-	if (b > size) {
+	if (b >= size) {
 		throw "Number out of bounds";
 	}
 
@@ -559,7 +559,8 @@ int Bigint::operator[](int const& b) {
 
 	int f = b - sizeAtBack;
 
-	std::string part = std::to_string(number.at((int)(f / 9)));
+	std::string part = std::to_string(number.at(number.size() - 2 - (int)(f / 9)));
+
 	if (part.size() < 9) {
 		return part[f % 9 + (9 - part.size())] - '0';
 	}
