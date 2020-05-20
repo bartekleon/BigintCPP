@@ -7,7 +7,7 @@
 #include <string>
 #include <map>
 #include <sstream>
-#include <math.h>
+#include <cmath>
 
 class Bigint {
 
@@ -84,6 +84,7 @@ private:
 	int segmentLength(int) const;
 	Bigint pow(int const&, std::map<int, Bigint>&);
 	int compare(Bigint const&) const; // 0 a == b, -1 a < b, 1 a > b
+	Bigint getFragment(Bigint&, int);
 };
 
 std::string toString(Bigint const&);
