@@ -418,11 +418,8 @@ Bigint Bigint::operator/(Bigint q) {
 		return *this;
 	}
 
-	Bigint answer;
-
-	Bigint tmp_quotient, sum_quotient, sub_p, tmpx1;
-
-	bool done_flag = false;
+	Bigint sum_quotient, sub_p, tmpx1;
+	int tmp_quotient;
 
 	Bigint look_up[4] = { q, q * 2, q * 4, q * 8 };
 
@@ -438,9 +435,8 @@ Bigint Bigint::operator/(Bigint q) {
 		int digitsQ = look_up_digits[3];
 
 		if (digitsP - look_up_digits[0] < 0) {
-			answer = sum_quotient;
-			answer.positive = this_sign == q_sign;
-			return answer;
+			sum_quotient.positive = this_sign == q_sign;
+			return sum_quotient;
 		}
 
 		if (digitsP - digitsQ < 0) {
@@ -450,18 +446,16 @@ Bigint Bigint::operator/(Bigint q) {
 			sub_p = getFragment(p, digitsQ);
 		}
 
-
 		for (int i = 3; i >= 0; i--) {
 			if (sub_p >= look_up[i]) {
 				tmpx1 = look_up[i];
 				digitsQ = look_up_digits[i];
-				tmp_quotient = (long long)1 << i;
+				tmp_quotient = 1 << i;
 				break;
 			}
 			else if (i == 0) {
-				answer = sum_quotient;
-				answer.positive = this_sign == q_sign;
-				return answer;
+				sum_quotient.positive = this_sign == q_sign;
+				return sum_quotient;
 			}
 		}
 
@@ -469,16 +463,22 @@ Bigint Bigint::operator/(Bigint q) {
 
 		if (k > 0) {
 			std::string temppp(k, '0');
-			temppp = "1" + temppp;
 
-			sum_quotient = sum_quotient + (tmp_quotient * temppp);
-			tmpx1 = tmpx1 * temppp;
+			sum_quotient = sum_quotient + (std::to_string(tmp_quotient) + temppp);
+			tmpx1 = tmpx1 * ("1" + temppp);
 			p = p - tmpx1;
-		} else {
+		}
+		else {
 			sum_quotient = sum_quotient + tmp_quotient;
 			p = p - tmpx1;
 		}
 	}
+}
+
+Bigint& Bigint::operator/=(Bigint const& q) {
+	*this = *this / q;
+
+	return *this;
 }
 
 long long Bigint::operator%(long long const& divisor) {
@@ -541,7 +541,30 @@ Bigint Bigint::operator=(const long long& a) {
 }
 
 int Bigint::operator[](int const& b) {
-	return this->toString()[b] - '0';
+	int size = this->digits();
+
+	if (b > size) {
+		throw "Number out of bounds";
+	}
+
+	if (b == 0 && number.back() < 10) {
+		return number.back();
+	}
+
+	int sizeAtBack = std::log10(number.back()) + 1;
+
+	if (sizeAtBack > b) {
+		return std::to_string(number.back())[b] - '0';
+	}
+
+	int f = b - sizeAtBack;
+
+	std::string part = std::to_string(number.at((int)(f / 9)));
+	if (part.size() < 9) {
+		return part[f % 9 + (9 - part.size())] - '0';
+	}
+
+	return part[f % 9] - '0';
 }
 
 void Bigint::clear() {

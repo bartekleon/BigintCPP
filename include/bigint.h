@@ -45,6 +45,7 @@ public:
 
 	// Division
 	Bigint operator/(Bigint q);
+	Bigint& operator/=(Bigint const&);
 
 	// Modulo
 	long long operator%(long long const&);
