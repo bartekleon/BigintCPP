@@ -70,13 +70,11 @@ TEST(MultiplicationTests, MultiplicationTests) {
 	EXPECT_TRUE(Bigint(123) * Bigint(-32) == Bigint(-3936));
 	EXPECT_TRUE(Bigint(-22) * Bigint(82) == Bigint(-1804));
 	EXPECT_TRUE(Bigint(-13) * Bigint(-32) == Bigint(416));
-
 	
 	EXPECT_TRUE(Bigint("342387239127313213") * Bigint("2312074892343") == Bigint("791624939044899694217816428059"));
 
 	EXPECT_TRUE(Bigint(-13) * 0 == Bigint(0));
 	EXPECT_TRUE(Bigint(-13) * Bigint(0) == Bigint(0));
-
 
 	EXPECT_TRUE(Bigint(123) * 32 == Bigint(3936));
 	EXPECT_TRUE(Bigint(123) * -32 == Bigint(-3936));
@@ -102,6 +100,11 @@ TEST(DivisionTests, DivisionTests) {
 			==
 		Bigint("24907111989160678895558821")
 	);
+
+	Bigint a(4113);
+	a /= Bigint(20);
+
+	EXPECT_TRUE(a == 205);
 
 	ASSERT_ANY_THROW(Bigint(123) / 0);
 }
@@ -146,4 +149,10 @@ TEST(Streams, Streams) {
 	EXPECT_TRUE(a == sLine);
 	EXPECT_TRUE(a.toString() == sLine);
 	EXPECT_TRUE(toString(a) == sLine);
+}
+
+TEST(Access, Access) {
+	EXPECT_TRUE(Bigint("304839054389543804382543790782030318932382904234")[13] == 4);
+	EXPECT_TRUE(Bigint("304839054389543804382543790782030318932382904234")[44] == 4);
+	EXPECT_ANY_THROW(Bigint(1234)[4]);
 }
