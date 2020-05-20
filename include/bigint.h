@@ -7,7 +7,7 @@
 #include <string>
 #include <map>
 #include <sstream>
-#include <math.h>
+#include <cmath>
 
 class Bigint {
 

@@ -362,7 +362,7 @@ bool Bigint::isNegative() {
 
 Bigint Bigint::getFragment(Bigint& p, int size) {
 	auto it = p.number.end() - 1;
-	int log = log10(*it) + 1;
+	int log = std::log10(*it) + 1;
 
 	if (p.number.size() == 1 || log >= size) {
 		return Bigint(std::to_string((int)(*it / std::pow(10, log - size))));
@@ -571,7 +571,7 @@ int Bigint::segmentLength(int segment) const {
 		return 0;
 	}
 
-	return (int)log10(segment) + 1;
+	return (int)std::log10(segment) + 1;
 }
 
 std::istream& operator>>(std::istream& in, Bigint& a) {
