@@ -1,4 +1,6 @@
 language: cpp
+os: linux
+dist: xenial
 
 env:
   global:
@@ -20,7 +22,9 @@ matrix:
       addons:
         apt:
           sources:
-            - llvm-toolchain-xenial-10.0
+            - ubuntu-toolchain-r-test
+            - sourceline: 'deb https://apt.llvm.org/xenial/ llvm-toolchain-xenial-10 main'
+              key_url: 'https://apt.llvm.org/llvm-snapshot.gpg.key'
           packages:
             - clang-10
             - lcov
