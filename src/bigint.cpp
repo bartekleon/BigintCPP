@@ -2,12 +2,9 @@
 
 Bigint::Bigint() {
 	this->positive = true;
-	this->base = Bigint::default_base;
 }
 
 Bigint::Bigint(long long value) {
-	base = Bigint::default_base;
-
 	if (value < 0) {
 		positive = false;
 		value *= -1;
@@ -16,15 +13,14 @@ Bigint::Bigint(long long value) {
 	}
 
 	while (value) {
-		number.push_back((int)(value % base));
-		value /= base;
+		number.push_back((int)(value % 1000000000));
+		value /= 1000000000;
 	}
 }
 
 Bigint::Bigint(std::string_view stringInteger) {
 	int size = stringInteger.length();
 
-	base = Bigint::default_base;
 	positive = stringInteger[0] != '-';
 
 	while (true) {
@@ -54,7 +50,6 @@ Bigint::Bigint(std::string_view stringInteger) {
 
 Bigint::Bigint(const Bigint& bigint) {
 	this->number = bigint.number;
-	this->base = bigint.base;
 	this->positive = bigint.positive;
 }
 
@@ -107,9 +102,9 @@ Bigint& Bigint::operator+=(Bigint const& b) {
 			sum += *it2;
 			++it2;
 		}
-		*it1 = sum % base;
+		*it1 = sum % 1000000000;
 		it1++;
-		sum /= base;
+		sum /= 1000000000;
 	}
 	if (sum) {
 		number.push_back(1);
@@ -158,10 +153,10 @@ Bigint& Bigint::operator+=(long long b) {
 	while (b || initial_flag) {
 		initial_flag = false;
 		if (it != number.end()) {
-			*it += b % base;
-			b /= base;
-			b += *it / base;
-			*it %= base;
+			*it += b % 1000000000;
+			b /= 1000000000;
+			b += *it / 1000000000;
+			*it %= 1000000000;
 			++it;
 		} else {
 			number.push_back(0);
@@ -206,27 +201,15 @@ Bigint& Bigint::operator-=(Bigint const& b) {
 			++it2;
 		}
 		if (dif < 0) {
-			*(it1 - 1) = (dif + base) % base;
+			*(it1 - 1) = (dif + 1000000000) % 1000000000;
 			dif = -1;
 		} else {
-			*(it1 - 1) = dif % base;
-			dif /= base;
+			*(it1 - 1) = dif % 1000000000;
+			dif /= 1000000000;
 		}
 	}
 	if (dif < 0) {
-		std::string newstr = "1";
-		std::string str = "";
-
-		for (int i = 1; i < base; i *= 10) {
-			str += "0";
-		}
-
-		int c_seg = number.size();
-		while (c_seg--) {
-			newstr += str;
-		}
-
-		*this = Bigint(newstr) - *this;
+		*this = Bigint(1).addZeroes(9 * number.size()) - *this;
 		positive = false;
 	}
 	while (number.size() && !number.back()) {
@@ -250,17 +233,16 @@ Bigint Bigint::operator*(Bigint const& b) const {
 		return (Bigint)*this *= (long long)b.number[0] * -1;
 	}
 
-	std::vector<int>::const_iterator it1;
 	std::vector<int>::const_iterator it2;
-	Bigint c = Bigint(0);
+	Bigint c(0);
 
 	int i = 0;
 	int j = 0;
 
-	for (it1 = number.begin(); it1 != number.end(); ++it1) {
+	for (std::vector<int>::const_iterator it1 = number.begin(); it1 != number.end(); ++it1) {
 		j = 0;
 		for (it2 = b.number.begin(); it2 != b.number.end(); ++it2) {
-			c += Bigint(std::to_string((long long)(*it1) * (*it2)) + std::string(i + j, '0'));
+			c += Bigint((long long)(*it1) * (*it2)).addZeroes(i + j);
 			j += 9;
 		}
 		i += 9;
@@ -309,8 +291,8 @@ Bigint& Bigint::operator*=(long long const& b1) {
 
 	while (it != number.end()) {
 		sum += (long long)(*it) * b;
-		*it = (int)(sum % base);
-		sum /= base;
+		*it = (int)(sum % 1000000000);
+		sum /= 1000000000;
 		++it;
 	}
 	if (sum) {
@@ -462,11 +444,8 @@ Bigint Bigint::operator/(Bigint q) {
 		int k = digitsP - look_up_digits[3] - (look_up_digits[3] - digitsQ);
 
 		if (k > 0) {
-			std::string temppp(k, '0');
-
-			sum_quotient = sum_quotient + Bigint(std::to_string(tmp_quotient) + temppp);
-			tmpx1 = tmpx1 * Bigint("1" + temppp);
-			p = p - tmpx1;
+			sum_quotient = sum_quotient + Bigint(tmp_quotient).addZeroes(k);
+			p = p - tmpx1.addZeroes(k);
 		}
 		else {
 			sum_quotient = sum_quotient + tmp_quotient;
@@ -487,7 +466,7 @@ long long Bigint::operator%(long long const& divisor) {
 	for (int i = 0; i < number.size(); i++) {
 		remains = (remains + number[number.size() - i - 1]) % divisor;
 		if (i != number.size() - 1) {
-			remains *= base;
+			remains *= 1000000000;
 			remains %= divisor;
 		}
 	}
@@ -533,8 +512,8 @@ Bigint Bigint::operator=(const long long& a) {
 	long long t = a;
 
 	do {
-		number.push_back((int)(t % base));
-		t /= base;
+		number.push_back((int)(t % 1000000000));
+		t /= 1000000000;
 	} while (t != 0);
 
 	return *this;
@@ -720,6 +699,39 @@ int Bigint::compare(const Bigint& a) const {
 
 void Bigint::flipPositive() const {
 	this->positive = !this->positive;
+}
+
+Bigint& Bigint::addZeroes(int num) {
+	if (num == 0) {
+		return *this;
+	}
+
+	long long ten = std::pow(10, num % 9);
+
+	if (ten != 1) {
+		int acum = 0;
+		int acum2 = 0;
+		for (std::vector<int>::iterator it = this->number.begin(); it != this->number.end(); ++it) {
+			acum = (int)(ten * (*it) / 1000000000);
+			*it = (int)((ten * (*it) + acum2) % 1000000000);
+			acum2 = acum;
+		}
+		if (acum) {
+			this->number.push_back(acum);
+		}
+	}
+
+	if (num / 9 > 0) {
+		std::reverse(this->number.begin(), this->number.end());
+
+		for (int i = 0; i < num / 9; i++) {
+			this->number.push_back(0);
+		}
+
+		std::reverse(this->number.begin(), this->number.end());
+	}
+
+	return *this;
 }
 
 std::string toString(Bigint const& value) {

@@ -15,8 +15,6 @@ class Bigint {
 private:
 	std::vector<int> number;
 	mutable bool positive;
-	int base;
-	static const int default_base = 1000000000;
 
 public:
 	// Constructors
@@ -78,6 +76,8 @@ public:
 	bool isNegative();
 	Bigint clone();
 	void flipPositive() const;
+
+	Bigint& addZeroes(int);
 
 	// Power
 	Bigint& pow(int const&);
