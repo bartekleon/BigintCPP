@@ -9,6 +9,7 @@
 #include <sstream>
 #include <cmath>
 #include <string_view>
+#include <algorithm>
 
 class Bigint {
 
