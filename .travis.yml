@@ -14,13 +14,13 @@ env:
 matrix:
   include:
     - os: linux
-      dist: bionic
-      sudo: true
+      dist: xenial
+      sudo: required
       compiler: clang
       addons:
         apt:
           sources:
-            - llvm-toolchain-bionic-10.0
+            - llvm-toolchain-xenial-10.0
           packages:
             - clang-10
             - lcov
