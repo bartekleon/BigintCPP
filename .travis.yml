@@ -39,6 +39,11 @@ install:
   - ${CXX} --version
   - ${CXX} -v
   - sudo pip install codecov
+  - curl -L https://github.com/mozilla/grcov/releases/latest/download/grcov-linux-x86_64.tar.bz2 | tar jxf -
+  
+  - export CARGO_INCREMENTAL=0
+  - export RUSTFLAGS="-Zprofile -Ccodegen-units=1 -Copt-level=0 -Clink-dead-code -Coverflow-checks=off -Zpanic_abort_tests -Cpanic=abort"
+  - export RUSTDOCFLAGS="-Cpanic=abort"
   
   # Download and install recent cmake
   - |
@@ -56,8 +61,8 @@ script:
   - mkdir -p build
   - cd build
   - cmake ${CMAKE_OPTIONS} -DCMAKE_CXX_FLAGS=${CXX_FLAGS} -DCMAKE_BUILD_TYPE=Coverage -DBUILD_TESTS=ON .. 
-  - make Bigint_coverage
+  - |
+      zip -0 ccov.zip `find . \( -name "YOUR_PROJECT_NAME*.gc*" \) -print`;
+      ./grcov ccov.zip -s . -t lcov --llvm --branch --ignore-not-existing --ignore "/*" -o lcov.info;
+      bash <(curl -s https://codecov.io/bash) -f lcov.info;
   - ctest
-
-after_success:
-  - codecov -t 8d1c8c84-247f-4c93-b694-77494affac62 -x 'llvm-cov-10 gcov'
