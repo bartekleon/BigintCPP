@@ -14,18 +14,18 @@ env:
 matrix:
   include:
     - os: linux
-      dist: trusty
+      dist: bionic
       sudo: true
-      compiler: gcc
+      compiler: clang
       addons:
         apt:
           sources:
-            - ubuntu-toolchain-r-test
+            - llvm-toolchain-bionic-10.0
           packages:
-            - g++-9
+            - clang-10
             - lcov
       env:
-        - MATRIX_EVAL="CC=gcc-9 && CXX=g++-9"
+        - MATRIX_EVAL="CC=clang-10 && CXX=clang++-10"
     
 before_install:
   # Combine global build options with OS/compiler-dependent options
