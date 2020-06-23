@@ -14,16 +14,17 @@ env:
 matrix:
   include:
     - os: linux
-      dist: bionic
+      dist: xenial
       sudo: true
       compiler: clang
       addons:
         apt:
           sources:
-            - llvm-toolchain-bionic-10.0
+            - llvm-toolchain-xenial-10.0
           packages:
             - clang-10
             - lcov
+            - llvm-cov
       env:
         - MATRIX_EVAL="CC=clang-10 && CXX=clang++-10"
     
@@ -60,4 +61,4 @@ script:
   - ctest
 
 after_success:
-  - codecov -t 8d1c8c84-247f-4c93-b694-77494affac62 -X gcov
+  - codecov -t 8d1c8c84-247f-4c93-b694-77494affac62 -x 'llvm-cov-10 gcov'
