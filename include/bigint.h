@@ -8,6 +8,7 @@
 #include <map>
 #include <sstream>
 #include <cmath>
+#include <string_view>
 
 class Bigint {
 
@@ -21,7 +22,7 @@ public:
 	// Constructors
 	Bigint();
 	Bigint(long long);
-	Bigint(std::string);
+	Bigint(std::string_view);
 	Bigint(const Bigint&);
 
 	// Adding

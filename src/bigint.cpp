@@ -21,7 +21,7 @@ Bigint::Bigint(long long value) {
 	}
 }
 
-Bigint::Bigint(std::string stringInteger) {
+Bigint::Bigint(std::string_view stringInteger) {
 	int size = stringInteger.length();
 
 	base = Bigint::default_base;
@@ -464,8 +464,8 @@ Bigint Bigint::operator/(Bigint q) {
 		if (k > 0) {
 			std::string temppp(k, '0');
 
-			sum_quotient = sum_quotient + (std::to_string(tmp_quotient) + temppp);
-			tmpx1 = tmpx1 * ("1" + temppp);
+			sum_quotient = sum_quotient + Bigint(std::to_string(tmp_quotient) + temppp);
+			tmpx1 = tmpx1 * Bigint("1" + temppp);
 			p = p - tmpx1;
 		}
 		else {
@@ -602,7 +602,7 @@ std::istream& operator>>(std::istream& in, Bigint& a) {
 	std::string str;
 	in >> str;
 
-	a = str;
+	a = Bigint(str);
 
 	return in;
 }
