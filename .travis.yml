@@ -28,7 +28,6 @@ matrix:
           packages:
             - clang-10
             - lcov
-            - llvm-cov
       env:
         - MATRIX_EVAL="CC=clang-10 && CXX=clang++-10"
     
