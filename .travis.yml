@@ -31,7 +31,7 @@ matrix:
            - libopencv-dev
          sources: &precise_latest_boost_sources
            - ubuntu-toolchain-r-test
-           - llvm-toolchain-precise-4.0
+           - llvm-toolchain-precise
     
 before_install:
   # Combine global build options with OS/compiler-dependent options
