@@ -20,12 +20,18 @@ matrix:
       addons:
         apt:
           sources:
-            - llvm-toolchain-bionic-10.0
+            - llvm-toolchain-bionic
+            - ubuntu-toolchain-r-test
           packages:
             - clang-10
             - lcov
+            - g++-7
+            - libgoogle-perftools-dev
       env:
         - MATRIX_EVAL="CC=clang-10 && CXX=clang++-10"
+        - GCC_CXX=g++-7
+        - GCOV=gcov-7
+        - CLANG_CXX=clang++-10
     
 before_install:
   # Combine global build options with OS/compiler-dependent options
@@ -61,7 +67,8 @@ script:
   - mkdir -p build
   - cd build
   - cmake ${CMAKE_OPTIONS} -DCMAKE_CXX_FLAGS=${CXX_FLAGS} -DCMAKE_BUILD_TYPE=Coverage -DBUILD_TESTS=ON .. 
-  - make Bigint_coverage
+  - cargo build --verbose
+  - cargo test --verbose
   - |
       zip -0 ccov.zip `find . \( -name "bigint_lib*.gc*" \) -print`;
       ./grcov ccov.zip -s . -t lcov --llvm --branch --ignore-not-existing --ignore "/*" -o lcov.info;
