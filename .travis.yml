@@ -30,11 +30,14 @@ matrix:
          sources: &precise_latest_boost_sources
            - ubuntu-toolchain-r-test
            - llvm-toolchain-precise
+      env:
+        - MATRIX_EVAL="CC=gcc-9 && CXX=g++-9"
     
 before_install:
   # Combine global build options with OS/compiler-dependent options
   - export CMAKE_OPTIONS=${CMAKE_OPTIONS}" "${ENV_CMAKE_OPTIONS}
   - export CXX_FLAGS=${CXX_FLAGS}" "${ENV_CXX_FLAGS}
+  - eval "${MATRIX_EVAL}"
 
 install:
   - echo ${PATH}
