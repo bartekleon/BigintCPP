@@ -22,8 +22,7 @@ matrix:
          packages: &precise_latest_boost_packages
            - gcc-9
            - g++-9
-           - gcov-9
-           - clang-10
+           - gcov
            - valgrind
            # Misc
            - python-yaml
