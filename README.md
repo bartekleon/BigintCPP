@@ -25,6 +25,7 @@
 *  [isNegative](#isNegative)
 *  [toString](#tostring)
 *  [clone](#clone)
+*  [addZeroes](#addZeroes)
 
 [Functions](#functions)
 
@@ -173,6 +174,15 @@ Clones Bigint with the same value
 Bigint a = 455897864531248;
 Bigint b = a.clone();
 cout << a == b // true
+```
+
+## addZeroes()
+Multiples number by pow(10, n)
+```C++
+Bigint a = 455897864531248;
+a.addZeroes(4);
+cout << a // 4558978645312480000
+cout << a.addZeroes(3) // 4558978645312480000000
 ```
 
 # Functions
