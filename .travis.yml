@@ -47,6 +47,7 @@ install:
   - cmake --version
 
 script:
+  - ./configure --enable-gcov
   - mkdir build
   - cd build
   - cmake ${CMAKE_OPTIONS} -DCMAKE_CXX_FLAGS=${CXX_FLAGS} -DCMAKE_CXX_COMPILER=$COMPILER -DCMAKE_BUILD_TYPE=ON -DBUILD_TESTS=ON .. && make
