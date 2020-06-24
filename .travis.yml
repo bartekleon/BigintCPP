@@ -64,4 +64,4 @@ after_success:
   - wget https://github.com/linux-test-project/lcov/archive/v1.14.zip
   - unzip v1.14.zip
   - lcov="`pwd`/lcov-1.14/bin/lcov $GCOV"
-  - codecov -t 8d1c8c84-247f-4c93-b694-77494affac62 -X gcov
+  - codecov -t 8d1c8c84-247f-4c93-b694-77494affac62
