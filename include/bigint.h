@@ -8,20 +8,20 @@
 #include <map>
 #include <sstream>
 #include <cmath>
+#include <string_view>
+#include <algorithm>
 
 class Bigint {
 
 private:
 	std::vector<int> number;
 	mutable bool positive;
-	int base;
-	static const int default_base = 1000000000;
 
 public:
 	// Constructors
 	Bigint();
 	Bigint(long long);
-	Bigint(std::string);
+	Bigint(std::string_view);
 	Bigint(const Bigint&);
 
 	// Adding
@@ -77,6 +77,8 @@ public:
 	bool isNegative();
 	Bigint clone();
 	void flipPositive() const;
+
+	Bigint& addZeroes(int);
 
 	// Power
 	Bigint& pow(int const&);

@@ -146,7 +146,6 @@ TEST(Streams, Streams) {
 
 	Bigint a(sLine);
 
-	EXPECT_TRUE(a == sLine);
 	EXPECT_TRUE(a.toString() == sLine);
 	EXPECT_TRUE(toString(a) == sLine);
 }
