@@ -30,7 +30,7 @@ before_install:
   - export CXX_FLAGS=${CXX_FLAGS}" "${ENV_CXX_FLAGS}
 
 install:
-  - sudo pip install codecov
+  - pip install --user cpp-coveralls
   # Download and install recent cmake
   - |
     if [[ ${TRAVIS_OS_NAME} == "linux" ]]; then
