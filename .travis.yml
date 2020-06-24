@@ -1,3 +1,4 @@
+sudo: required
 language: cpp
 
 env:
@@ -13,43 +14,23 @@ env:
 
 matrix:
   include:
-    - os: linux
-      dist: trusty
-      sudo: true
-      compiler: gcc
+    - compiler: gcc
       addons:
-       apt:
-         packages: &precise_latest_boost_packages
-           - gcc-9
-           - g++-9
-           - valgrind
-           # Misc
-           - python-yaml
-           - lcov
-           - libopencv-dev
-         sources: &precise_latest_boost_sources
-           - ubuntu-toolchain-r-test
-           - llvm-toolchain-precise
-      env:
-        - MATRIX_EVAL="CC=gcc-9 && CXX=g++-9"
-    
+        apt:
+          sources:
+            - ubuntu-toolchain-r-test
+          packages:
+            - g++-9
+            - valgrind
+            - lcov
+      env: COMPILER=g++-9
+
 before_install:
-  # Combine global build options with OS/compiler-dependent options
   - export CMAKE_OPTIONS=${CMAKE_OPTIONS}" "${ENV_CMAKE_OPTIONS}
   - export CXX_FLAGS=${CXX_FLAGS}" "${ENV_CXX_FLAGS}
-  - eval "${MATRIX_EVAL}"
 
 install:
-  - echo ${PATH}
-  - echo ${CXX}
-  - ${CXX} --version
-  - ${CXX} -v
   - sudo pip install codecov
-  
-  - wget http://ftp.de.debian.org/debian/pool/main/l/lcov/lcov_1.14.orig.tar.gz
-  - tar xf lcov_1.14.orig.tar.gz
-  - sudo make -C lcov-1.14/ install
-
   # Download and install recent cmake
   - |
     if [[ ${TRAVIS_OS_NAME} == "linux" ]]; then
@@ -58,15 +39,18 @@ install:
       travis_retry wget --no-check-certificate --quiet -O - ${CMAKE_URL} | tar --strip-components=1 -xz -C ${DEPS_DIR}/cmake
       export PATH=${DEPS_DIR}/cmake/bin:${PATH}
     fi
-############################################################################
-# Build main and tests
-############################################################################
+
+  - echo ${PATH}
+  - echo ${CXX}
+  - ${CXX} --version
+  - ${CXX} -v
+  - cmake --version
+
 script:
-  - mkdir -p build
+  - mkdir build
   - cd build
-  - cmake ${CMAKE_OPTIONS} -DCMAKE_CXX_FLAGS=${CXX_FLAGS} -DCMAKE_BUILD_TYPE=Coverage -DBUILD_TESTS=ON .. 
-  - make Bigint_coverage
-  - ctest
+  - cmake ${CMAKE_OPTIONS} -DCMAKE_CXX_FLAGS=${CXX_FLAGS} -DCMAKE_CXX_COMPILER=$COMPILER -DCMAKE_BUILD_TYPE=ON -DBUILD_TESTS=ON .. && make
+  - make test
 
 after_success:
   - codecov -t 8d1c8c84-247f-4c93-b694-77494affac62 -X gcov
