@@ -13,5 +13,5 @@ set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/.travis/cmake)
 include(CodeCoverage)
 setup_target_for_coverage(Bigint_coverage unit_tests coverage)
 
-SET(CMAKE_CXX_FLAGS "-g -O0 -fprofile-arcs -ftest-coverage")
-SET(CMAKE_C_FLAGS "-g -O0 -fprofile-arcs -ftest-coverage")
+SET(CMAKE_CXX_FLAGS "-g -O0 -fprofile-arcs -ftest-coverage --coverage")
+SET(CMAKE_C_FLAGS "-g -O0 -fprofile-arcs -ftest-coverage  --coverage")
