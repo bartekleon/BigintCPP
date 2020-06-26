@@ -1,10 +1,11 @@
 sudo: required
 language: cpp
+dist: xenial
 
 env:
   global:
     # Ubuntu version
-    - LINUX_DIST=trusty
+    - LINUX_DIST=xenial
     - DEPS_DIR=${TRAVIS_BUILD_DIR}/deps
     # Global build options and C++ flags
     - CXX_FLAGS="-Wall -pedantic -Werror -Wno-variadic-macros -Wno-long-long -Wno-shadow"
@@ -22,7 +23,6 @@ matrix:
           packages:
             - g++-8
             - valgrind
-            - lcov
             - libc++-dev
       env:
         - COMPILER=g++-8
@@ -40,7 +40,7 @@ install:
   - sudo pip install codecov
   - wget https://github.com/linux-test-project/lcov/archive/v1.14.zip
   - unzip v1.14.zip
-  - lcov="`pwd`/lcov-1.14/bin/lcov $GCOV"
+  - lcov="/lcov-1.14/bin/lcov"
   # Download and install recent cmake
   - |
     if [[ ${TRAVIS_OS_NAME} == "linux" ]]; then
