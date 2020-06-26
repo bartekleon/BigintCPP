@@ -114,7 +114,7 @@ TEST(AllocationTests, AllocationTests) {
 	Bigint e;
 	EXPECT_NO_THROW(Bigint a = 12345);
 	EXPECT_NO_THROW(b = 159753);
-	EXPECT_NO_THROW(Bigint c = "12345");
+	EXPECT_NO_THROW(Bigint c("12345"));
 	EXPECT_NO_THROW(Bigint d = b);
 	EXPECT_NO_THROW(e = "23498523524");
 }
