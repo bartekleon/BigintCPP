@@ -18,8 +18,4 @@ jobs:
       run: sudo ./install.sh
 
     - name: build
-      env:
-        - CXX_FLAGS: "-Wall -pedantic -Werror -Wno-variadic-macros -Wno-long-long -Wno-shadow"
-        - RUN_TESTS: true
-        - COVERAGE: true
       run: sudo ./build.sh
