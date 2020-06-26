@@ -8,7 +8,7 @@ target_link_libraries(unit_tests gtest gtest_main Bigint_lib pthread)
 
 add_test(UnitTests unit_tests)
 
-set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/.travis/cmake)
+set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)
 
 include(CodeCoverage)
 setup_target_for_coverage(Bigint_coverage unit_tests coverage)
