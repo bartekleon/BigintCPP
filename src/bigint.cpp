@@ -125,9 +125,7 @@ Bigint& Bigint::operator+=(long long b) {
 		return *this;
 	}
 	if (positive && b < 0) {
-		*this -= -b;
-
-		return *this;
+		return *this -= -b;
 	}
 	if (!positive && b > 0) {
 		flipPositive();
@@ -148,10 +146,7 @@ Bigint& Bigint::operator+=(long long b) {
 
 	std::vector<int>::iterator it = number.begin();
 
-	bool initial_flag = true;
-
-	while (b || initial_flag) {
-		initial_flag = false;
+	while (b) {
 		if (it != number.end()) {
 			*it += b % 1000000000;
 			b /= 1000000000;
@@ -347,33 +342,38 @@ Bigint Bigint::getFragment(Bigint& p, int size) {
 	int log = std::log10(*it) + 1;
 
 	if (p.number.size() == 1 || log >= size) {
-		return Bigint(std::to_string((int)(*it / std::pow(10, log - size))));
+		return Bigint((int)(*it / std::pow(10, log - size)));
 	}
 
-	std::string value = "";
+	if (p.digits() <= size) {
+		return Bigint(p);
+	}
 
-	value += std::to_string(*it);
 	size -= log;
+	--it;
 
-	it--;
+	for (; size > 8 && it != p.number.begin(); size -= 9, --it) {}
 
-	for (; it >= p.number.begin(); it--) {
-		if (size == 0) {
-			return Bigint(value);
-		}
-		if (8 < size) {
-			std::string s = std::to_string(*it);
-			value += std::string(9 - s.size(), '0') + s;
-			size -= 9;
-			if (size == 0) {
-				return Bigint(value);
-			}
-		} else {
-			std::string s = std::to_string((int)(*it / std::pow(10, (9 - size))));
-			value += std::string(size - s.size(), '0') + s;
-			return Bigint(value);
-		}
+	int pow = std::pow(10, 9 - size);
+	int pow2 = std::pow(10, size);
+
+	Bigint ret((*it) / pow);
+
+	++it;
+
+	int i = 0;
+
+	for (; it < p.number.end(); ++it) {
+		ret.number.push_back((*it) / pow);
+		ret.number[i] += ((*it) % pow) * pow2;
+		i++;
 	}
+
+	if (*(ret.number.end() - 1) == 0) {
+		ret.number.pop_back();
+	}
+
+	return ret;
 }
 
 Bigint Bigint::operator/(Bigint q) {
