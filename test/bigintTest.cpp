@@ -186,3 +186,12 @@ TEST(Access, Access) {
 	EXPECT_TRUE(Bigint("304839054389543804382543790782030318932382904234")[44] == 4);
 	EXPECT_ANY_THROW(Bigint(1234)[4]);
 }
+
+TEST(ShouldFail, ShouldFail) {
+	Bigint b;
+	Bigint b;
+	std::string sLine = "2343239041089250841095749017409275918212719";
+	std::istringstream stream(sLine);
+
+	EXPECT_NO_THROW(stream >> b);
+}
