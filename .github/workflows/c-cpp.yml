@@ -5,20 +5,16 @@ on:
     branches: [ master ]
   pull_request:
     branches: [ master ]
-
 jobs:
   build:
     runs-on: ubuntu-latest
-  
     steps:
     - uses: actions/checkout@v2
-    
     - name: update and install third-party
       run:
         - sudo apt-get update -y
         - pip install codecov
         - sudo apt-get install -y lcov
-
     - name: configure
       run: chmod +x build.sh
     - name: build
