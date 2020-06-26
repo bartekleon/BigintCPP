@@ -506,15 +506,10 @@ bool Bigint::operator!=(const Bigint& b) const {
 	return compare(b) != 0;
 }
 
-Bigint Bigint::operator=(const long long& a) {
-	number.clear();
-
-	long long t = a;
-
-	do {
-		number.push_back((int)(t % 1000000000));
-		t /= 1000000000;
-	} while (t != 0);
+Bigint Bigint::operator=(std::string a) {
+	Bigint tmp(a);
+	number = tmp.number;
+	positive = tmp.positive;
 
 	return *this;
 }

@@ -109,6 +109,16 @@ TEST(DivisionTests, DivisionTests) {
 	ASSERT_ANY_THROW(Bigint(123) / 0);
 }
 
+TEST(AllocationTests, AllocationTests) {
+	Bigint b;
+	Bigint e;
+	EXPECT_NO_THROW(Bigint a = 12345);
+	EXPECT_NO_THROW(b = 159753);
+	EXPECT_NO_THROW(Bigint c = "12345");
+	EXPECT_NO_THROW(Bigint d = b);
+	EXPECT_NO_THROW(e = "23498523524");
+}
+
 TEST(PowerTests, PowerTests) {
 	EXPECT_TRUE(Bigint(8).pow(0) == Bigint(1));
 	EXPECT_TRUE(Bigint(-5).pow(0) == Bigint(1));

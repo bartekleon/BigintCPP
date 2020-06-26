@@ -98,6 +98,10 @@ if(a <= b) cout << "A is smaller than B or equal to it";
 Bigint a = 12345;
 Bigint b;
 b = 159753;
+Bigint c = "12345";
+Bigint d = b;
+Bigint e;
+e = "23498523524";
 ```
 
 ## Access
