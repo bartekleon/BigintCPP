@@ -9,10 +9,8 @@ jobs:
     steps:
     - uses: actions/checkout@v2
 
-    - name: configure-build
-      run: chmod +x build.sh
-    - name: configure-install
-      run: chmod +x install.sh
+    - name: configure
+      run: chmod +x build.sh && chmod +x install.sh
 
     - name: update and install third-party
       run: sudo ./install.sh
