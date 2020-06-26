@@ -17,3 +17,6 @@ jobs:
 
     - name: build
       run: sudo ./build.sh
+
+    - name: coverage
+      run: codecov -t 8d1c8c84-247f-4c93-b694-77494affac62 -X gcov
