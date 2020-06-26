@@ -13,5 +13,7 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
+    - name: configure
+      run: chmod +x build.sh
     - name: make
-      run: ./build.sh
+      run: sudo ./build.sh
