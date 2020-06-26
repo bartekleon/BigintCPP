@@ -1,9 +1,6 @@
 rm -r build
 mkdir -p build
 
-sudo apt-get update -y
-sudo apt-get install -y lcov
-
 cd build
 cmake -DCMAKE_BUILD_TYPE=ON -DBUILD_TESTS=ON .. && make
 make Bigint_coverage

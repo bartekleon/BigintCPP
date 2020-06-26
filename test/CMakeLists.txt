@@ -10,8 +10,8 @@ add_test(UnitTests unit_tests)
 
 set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)
 
-include(CodeCoverage)
-setup_target_for_coverage(Bigint_coverage unit_tests coverage)
-
 SET(CMAKE_CXX_FLAGS "-g -O0 -fprofile-arcs -ftest-coverage")
 SET(CMAKE_C_FLAGS "-g -O0 -fprofile-arcs -ftest-coverage")
+
+include(CodeCoverage)
+setup_target_for_coverage(Bigint_coverage unit_tests coverage)
