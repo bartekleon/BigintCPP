@@ -172,6 +172,13 @@ TEST(Streams, Streams) {
 
 	EXPECT_TRUE(a.toString() == sLine);
 	EXPECT_TRUE(toString(a) == sLine);
+
+	Bigint a;
+	std::istringstream stream(sLine);
+
+	EXPECT_NO_THROW(stream >> a);
+
+	EXPECT_TRUE(a == Bigint("2343239041089250841095749017409275918212719"));
 }
 
 TEST(Access, Access) {
