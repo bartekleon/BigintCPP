@@ -59,7 +59,7 @@ public:
 	bool operator!=(const Bigint&) const;
 
 	// Allocation
-	Bigint operator=(const long long&);
+	Bigint operator=(std::string);
 
 	// Access
 	int operator[](int const&);
