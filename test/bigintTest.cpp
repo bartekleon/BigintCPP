@@ -85,6 +85,11 @@ TEST(MultiplicationTests, MultiplicationTests) {
 	a *= 13;
 
 	EXPECT_TRUE(a == Bigint(1599));
+
+	Bigint b("23498223123342898");
+	b *= Bigint("92384723897592748924789234389");
+
+	EXPECT_TRUE(b == Bigint("2170876855334063153876652533841878955740519322"));
 }
 
 TEST(DivisionTests, DivisionTests) {
@@ -117,6 +122,15 @@ TEST(AllocationTests, AllocationTests) {
 	EXPECT_NO_THROW(Bigint c("12345"));
 	EXPECT_NO_THROW(Bigint d = b);
 	EXPECT_NO_THROW(e = "23498523524");
+}
+
+TEST(UnaryMinusTest, UnaryMinusTest) {
+	EXPECT_TRUE(-Bigint(13) == Bigint(-13));
+}
+
+TEST(IsNegativeTests, IsNegativeTests) {
+	EXPECT_TRUE(Bigint(13).isNegative() == false);
+	EXPECT_TRUE(Bigint(-13).isNegative() == true);
 }
 
 TEST(PowerTests, PowerTests) {
