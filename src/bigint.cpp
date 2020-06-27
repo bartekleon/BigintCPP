@@ -62,7 +62,8 @@ Bigint Bigint::operator+(Bigint const& b) const {
 
 Bigint& Bigint::operator+=(Bigint const& b) {
 	if (positive && !b.positive) {
-		b.positive = !b.positive;
+		b.flipPositive();
+
 		*this -= b;
 
 		b.flipPositive();
@@ -74,16 +75,6 @@ Bigint& Bigint::operator+=(Bigint const& b) {
 		*this -= b;
 
 		flipPositive();
-		return *this;
-	}
-	if (!positive && !b.positive) {
-		this->flipPositive();
-		b.flipPositive();
-
-		*this += b;
-
-		this->flipPositive();
-		b.flipPositive();
 		return *this;
 	}
 
@@ -136,12 +127,7 @@ Bigint& Bigint::operator+=(long long b) {
 		return *this;
 	}
 	if (!positive && b < 0) {
-		this->flipPositive();
-
-		*this += -b;
-
-		this->flipPositive();
-		return *this;
+		b = -b;
 	}
 
 	std::vector<int>::iterator it = number.begin();
@@ -175,7 +161,9 @@ Bigint& Bigint::operator-=(Bigint const& b) {
 	}
 	if (!positive || !b.positive) {
 		b.flipPositive();
+	
 		*this += b;
+	
 		b.flipPositive();
 		return *this;
 	}
@@ -243,9 +231,7 @@ Bigint Bigint::operator*(Bigint const& b) const {
 		i += 9;
 	}
 
-	if (positive != b.positive) {
-		c.positive = false;
-	}
+	c.positive = positive == b.positive;
 
 	return c;
 }
@@ -272,14 +258,12 @@ Bigint& Bigint::operator*=(long long const& b1) {
 	bool b1_sign = true;
 	int b = b1;
 
-	bool old_positive = positive;
-
-	positive = true;
-
 	if (b1 < 0) {
-		b *= -1;
+		b = -b;
 		b1_sign = false;
 	}
+
+	positive = b1_sign == positive;
 
 	std::vector<int>::iterator it = number.begin();
 	long long sum = 0;
@@ -292,10 +276,6 @@ Bigint& Bigint::operator*=(long long const& b1) {
 	}
 	if (sum) {
 		number.push_back((int)sum);
-	}
-
-	if (b1_sign != old_positive) {
-		positive = false;
 	}
 
 	return *this;
@@ -339,7 +319,7 @@ bool Bigint::isNegative() {
 
 Bigint Bigint::getFragment(Bigint& p, int size) {
 	auto it = p.number.end() - 1;
-	int log = std::log10(*it) + 1;
+	int log = (int)std::log10(*it) + 1;
 
 	if (p.number.size() == 1 || log >= size) {
 		return Bigint((int)(*it / std::pow(10, log - size)));
@@ -352,16 +332,18 @@ Bigint Bigint::getFragment(Bigint& p, int size) {
 	size -= log;
 	--it;
 
-	for (; size > 8 && it != p.number.begin(); size -= 9, --it) {}
+	int i = size / 9;
+	it -= i;
+	size -= i * 9;
 
 	int pow = std::pow(10, 9 - size);
-	int pow2 = std::pow(10, size);
+	int pow2 = 1000000000 / pow;
 
 	Bigint ret((*it) / pow);
 
 	++it;
 
-	int i = 0;
+	i = 0;
 
 	for (; it < p.number.end(); ++it) {
 		ret.number.push_back((*it) / pow);
@@ -382,8 +364,8 @@ Bigint Bigint::operator/(Bigint q) {
 	}
 
 	Bigint p = *this;
-	bool this_sign = this->positive;
-	bool q_sign = q.positive;
+	
+	positive = positive == q.positive;
 
 	p.positive = true;
 	q.positive = true;
@@ -395,7 +377,6 @@ Bigint Bigint::operator/(Bigint q) {
 	}
 	if (number.size() == 1) {
 		number[0] = (int)(number.at(0) / q.number.at(0));
-		positive = this_sign == q_sign;
 
 		return *this;
 	}
@@ -417,7 +398,7 @@ Bigint Bigint::operator/(Bigint q) {
 		int digitsQ = look_up_digits[3];
 
 		if (digitsP - look_up_digits[0] < 0) {
-			sum_quotient.positive = this_sign == q_sign;
+			sum_quotient.positive = positive;
 			return sum_quotient;
 		}
 
@@ -436,7 +417,7 @@ Bigint Bigint::operator/(Bigint q) {
 				break;
 			}
 			else if (i == 0) {
-				sum_quotient.positive = this_sign == q_sign;
+				sum_quotient.positive = positive;
 				return sum_quotient;
 			}
 		}
@@ -525,7 +506,7 @@ int Bigint::operator[](int const& b) {
 		return number.back();
 	}
 
-	int sizeAtBack = std::log10(number.back()) + 1;
+	int sizeAtBack = (int)std::log10(number.back()) + 1;
 
 	if (sizeAtBack > b) {
 		return std::to_string(number.back())[b] - '0';
