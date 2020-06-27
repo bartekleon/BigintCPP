@@ -37,6 +37,8 @@ public:
 	// Subtraction
 	Bigint operator-(Bigint const&) const;
 	Bigint& operator-=(Bigint const&);
+	Bigint operator-(long long const&) const;
+	Bigint& operator-=(long long);
 
 	// Unary minus
 	Bigint operator-();

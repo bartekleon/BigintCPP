@@ -194,6 +194,56 @@ Bigint& Bigint::operator-=(Bigint const& b) {
 	return *this;
 }
 
+Bigint Bigint::operator-(long long const& b) const {
+	Bigint c = *this;
+	c -= b;
+
+	return c;
+}
+
+Bigint& Bigint::operator-=(long long b) {
+	if (b == 0) {
+		return *this;
+	}
+	if (!positive || b < 0) {
+		return *this += -b;
+	}
+
+	auto it1 = number.begin();
+	int dif = 0;
+
+	while (it1 != number.end() || b != 0) {
+		if (it1 != number.end()) {
+			dif += *it1;
+			++it1;
+		} else {
+			number.push_back(0);
+			it1 = number.end();
+		}
+
+		dif -= (int)(b % 1000000000);
+		b /= 1000000000;
+
+		if (dif < 0) {
+			*(it1 - 1) = (dif + 1000000000) % 1000000000;
+			dif = -1;
+		}
+		else {
+			*(it1 - 1) = dif % 1000000000;
+			dif /= 1000000000;
+		}
+	}
+	if (dif < 0) {
+		*this = Bigint(1).addZeroes(9 * (int)number.size()) - *this;
+		positive = false;
+	}
+	while (!number.empty() && number.back() == 0) {
+		number.pop_back();
+	}
+
+	return *this;
+}
+
 Bigint Bigint::operator-() {
 	flipPositive();
 	return *this;
