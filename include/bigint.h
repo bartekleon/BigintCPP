@@ -5,6 +5,7 @@
 
 #include <algorithm>
 #include <cmath>
+#include <exception>
 #include <map>
 #include <sstream>
 #include <string>
