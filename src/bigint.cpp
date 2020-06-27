@@ -351,7 +351,7 @@ Bigint Bigint::getFragment(Bigint& p, int size) {
 
 Bigint Bigint::operator/(Bigint q) {
 	if (q == Bigint()) {
-		throw std::exception("Divisor must be non zero");
+		throw std::invalid_argument("Divisor must be non zero");
 	}
 
 	Bigint p = *this;
@@ -490,7 +490,7 @@ int Bigint::operator[](int const& b) {
 	int size = this->digits();
 
 	if (b >= size) {
-		throw std::exception("Number out of bounds");
+		throw std::out_of_range("Number out of bounds");
 	}
 
 	if (b == 0 && number.back() < 10) {
@@ -596,7 +596,7 @@ Bigint Bigint::pow(int const& power, std::map<int, Bigint>& lookup) {
 			return *this;
 		}
 
-		throw std::exception("Exponent must be positive");
+		throw std::domain_error("Exponent must be positive");
 	}
 
 	if (lookup.count(power) != 0) {
