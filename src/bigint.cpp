@@ -1,9 +1,5 @@
 #include "bigint.h"
 
-Bigint::Bigint() {
-	this->positive = true;
-}
-
 Bigint::Bigint(long long value) {
 	if (value < 0) {
 		positive = false;
@@ -12,7 +8,7 @@ Bigint::Bigint(long long value) {
 		positive = true;
 	}
 
-	while (value) {
+	while (value != 0) {
 		number.push_back((int)(value % 1000000000));
 		value /= 1000000000;
 	}
@@ -48,11 +44,6 @@ Bigint::Bigint(std::string_view stringInteger) {
 	}
 }
 
-Bigint::Bigint(const Bigint& bigint) {
-	this->number = bigint.number;
-	this->positive = bigint.positive;
-}
-
 Bigint Bigint::operator+(Bigint const& b) const {
 	Bigint c = *this;
 	c += b;
@@ -78,8 +69,8 @@ Bigint& Bigint::operator+=(Bigint const& b) {
 		return *this;
 	}
 
-	std::vector<int>::iterator it1 = this->number.begin();
-	std::vector<int>::const_iterator it2 = b.number.begin();
+	auto it1 = this->number.begin();
+	auto it2 = b.number.begin();
 	int sum = 0;
 
 	while (it1 != number.end() || it2 != b.number.end()) {
@@ -97,7 +88,7 @@ Bigint& Bigint::operator+=(Bigint const& b) {
 		it1++;
 		sum /= 1000000000;
 	}
-	if (sum) {
+	if (sum != 0) {
 		number.push_back(1);
 	}
 
@@ -130,9 +121,9 @@ Bigint& Bigint::operator+=(long long b) {
 		b = -b;
 	}
 
-	std::vector<int>::iterator it = number.begin();
+	auto it = number.begin();
 
-	while (b) {
+	while (b != 0) {
 		if (it != number.end()) {
 			*it += b % 1000000000;
 			b /= 1000000000;
@@ -161,14 +152,15 @@ Bigint& Bigint::operator-=(Bigint const& b) {
 	}
 	if (!positive || !b.positive) {
 		b.flipPositive();
-	
+
 		*this += b;
-	
+
 		b.flipPositive();
 		return *this;
 	}
-	std::vector<int>::iterator it1 = number.begin();
-	std::vector<int>::const_iterator it2 = b.number.begin();
+
+	auto it1 = number.begin();
+	auto it2 = b.number.begin();
 	int dif = 0;
 
 	while (it1 != number.end() || it2 != b.number.end()) {
@@ -192,10 +184,10 @@ Bigint& Bigint::operator-=(Bigint const& b) {
 		}
 	}
 	if (dif < 0) {
-		*this = Bigint(1).addZeroes(9 * number.size()) - *this;
+		*this = Bigint(1).addZeroes(9 * (int)number.size()) - *this;
 		positive = false;
 	}
-	while (number.size() && !number.back()) {
+	while (!number.empty() && number.back() == 0) {
 		number.pop_back();
 	}
 
@@ -216,16 +208,15 @@ Bigint Bigint::operator*(Bigint const& b) const {
 		return (Bigint)*this *= (long long)b.number[0] * -1;
 	}
 
-	std::vector<int>::const_iterator it2;
 	Bigint c(0);
 
 	int i = 0;
 	int j = 0;
 
-	for (std::vector<int>::const_iterator it1 = number.begin(); it1 != number.end(); ++it1) {
+	for (int it1 : number) {
 		j = 0;
-		for (it2 = b.number.begin(); it2 != b.number.end(); ++it2) {
-			c += Bigint((long long)(*it1) * (*it2)).addZeroes(i + j);
+		for (int it2 : b.number) {
+			c += Bigint((long long)it1 * it2).addZeroes(i + j);
 			j += 9;
 		}
 		i += 9;
@@ -256,7 +247,7 @@ Bigint& Bigint::operator*=(long long const& b1) {
 		return *this;
 	}
 	bool b1_sign = true;
-	int b = b1;
+	long long b = b1;
 
 	if (b1 < 0) {
 		b = -b;
@@ -265,7 +256,7 @@ Bigint& Bigint::operator*=(long long const& b1) {
 
 	positive = b1_sign == positive;
 
-	std::vector<int>::iterator it = number.begin();
+	auto it = number.begin();
 	long long sum = 0;
 
 	while (it != number.end()) {
@@ -274,7 +265,7 @@ Bigint& Bigint::operator*=(long long const& b1) {
 		sum /= 1000000000;
 		++it;
 	}
-	if (sum) {
+	if (sum != 0) {
 		number.push_back((int)sum);
 	}
 
@@ -302,7 +293,7 @@ int Bigint::digits() const {
 }
 
 bool Bigint::isEven() {
-	if (number.size() == 0) {
+	if (number.empty()) {
 		return true;
 	}
 
@@ -313,7 +304,7 @@ bool Bigint::isEven() {
 	return *(number.begin()) % 2 == 0;
 }
 
-bool Bigint::isNegative() {
+bool Bigint::isNegative() const {
 	return !this->positive;
 }
 
@@ -360,11 +351,11 @@ Bigint Bigint::getFragment(Bigint& p, int size) {
 
 Bigint Bigint::operator/(Bigint q) {
 	if (q == Bigint()) {
-		throw "Divisor must be non zero";
+		throw std::invalid_argument("Divisor must be non zero");
 	}
 
 	Bigint p = *this;
-	
+
 	positive = positive == q.positive;
 
 	p.positive = true;
@@ -382,7 +373,7 @@ Bigint Bigint::operator/(Bigint q) {
 	}
 
 	Bigint sum_quotient, sub_p, tmpx1;
-	int tmp_quotient;
+	int tmp_quotient = 0;
 
 	Bigint look_up[4] = { q, q * 2, q * 4, q * 8 };
 
@@ -416,7 +407,7 @@ Bigint Bigint::operator/(Bigint q) {
 				tmp_quotient = 1 << i;
 				break;
 			}
-			else if (i == 0) {
+			if (i == 0) {
 				sum_quotient.positive = positive;
 				return sum_quotient;
 			}
@@ -487,7 +478,7 @@ bool Bigint::operator!=(const Bigint& b) const {
 	return compare(b) != 0;
 }
 
-Bigint Bigint::operator=(std::string a) {
+Bigint& Bigint::operator=(const std::string& a) {
 	Bigint tmp(a);
 	number = tmp.number;
 	positive = tmp.positive;
@@ -499,7 +490,7 @@ int Bigint::operator[](int const& b) {
 	int size = this->digits();
 
 	if (b >= size) {
-		throw "Number out of bounds";
+		throw std::out_of_range("Number out of bounds");
 	}
 
 	if (b == 0 && number.back() < 10) {
@@ -514,7 +505,7 @@ int Bigint::operator[](int const& b) {
 
 	int f = b - sizeAtBack;
 
-	std::string part = std::to_string(number.at(number.size() - 2 - (int)(f / 9)));
+	std::string part = std::to_string(number.at(number.size() - 2 - (f / 9)));
 
 	if (part.size() < 9) {
 		return part[f % 9 + (9 - part.size())] - '0';
@@ -534,7 +525,7 @@ Bigint& Bigint::abs() {
 	return *this;
 }
 
-std::string Bigint::toString() {
+std::string Bigint::toString() const {
 	std::ostringstream stream;
 	stream << *this;
 
@@ -545,7 +536,7 @@ Bigint Bigint::clone() {
 	return Bigint(*this);
 }
 
-int Bigint::segmentLength(int segment) const {
+int Bigint::segmentLength(int segment) {
 	if (segment == 0) {
 		return 0;
 	}
@@ -563,11 +554,12 @@ std::istream& operator>>(std::istream& in, Bigint& a) {
 }
 
 std::ostream& operator<<(std::ostream& out, Bigint const& a) {
-	if (!a.number.size()) {
+	if (a.number.empty()) {
 		return out << '0';
 	}
-	int i = a.number.size() - 1;
-	for (; i >= 0 && a.number[i] == 0; --i);
+
+	int i = (int)a.number.size() - 1;
+	for (; i >= 0 && a.number[i] == 0; --i) {};
 
 	if (i == -1) {
 		return out << '0';
@@ -576,7 +568,7 @@ std::ostream& operator<<(std::ostream& out, Bigint const& a) {
 		out << '-';
 	}
 
-	std::vector<int>::const_reverse_iterator it = a.number.rbegin() + (a.number.size() - i - 1);
+	auto it = a.number.rbegin() + (a.number.size() - i - 1);
 
 	out << *it++;
 
@@ -584,7 +576,7 @@ std::ostream& operator<<(std::ostream& out, Bigint const& a) {
 		for (int i = 0, len = a.segmentLength(*it); i < 9 - len; ++i) {
 			out << '0';
 		}
-		if (*it) {
+		if (*it != 0) {
 			out << *it;
 		}
 	}
@@ -604,10 +596,10 @@ Bigint Bigint::pow(int const& power, std::map<int, Bigint>& lookup) {
 			return *this;
 		}
 
-		throw "Exponent must be positive";
+		throw std::domain_error("Exponent must be positive");
 	}
 
-	if (lookup.count(power)) {
+	if (lookup.count(power) != 0) {
 		return lookup[power];
 	}
 
@@ -628,15 +620,15 @@ Bigint Bigint::pow(int const& power, std::map<int, Bigint>& lookup) {
 }
 
 int Bigint::compare(const Bigint& a) const {
-	if (a.number.size() == 0) {
-		if (number.size() == 0) {
+	if (a.number.empty()) {
+		if (number.empty()) {
 			return 0;
 		}
 		if (number.size() == 1 && number[0] == 0) {
 			return 0;
 		}
 	}
-	if (number.size() == 0) {
+	if (number.empty()) {
 		if (a.number.size() == 1 && a.number[0] == 0) {
 			return 0;
 		}
@@ -687,12 +679,12 @@ Bigint& Bigint::addZeroes(int num) {
 	if (ten != 1) {
 		int acum = 0;
 		int acum2 = 0;
-		for (std::vector<int>::iterator it = this->number.begin(); it != this->number.end(); ++it) {
+		for (auto it = number.begin(); it != number.end(); ++it) {
 			acum = (int)(ten * (*it) / 1000000000);
 			*it = (int)((ten * (*it) + acum2) % 1000000000);
 			acum2 = acum;
 		}
-		if (acum) {
+		if (acum != 0) {
 			this->number.push_back(acum);
 		}
 	}

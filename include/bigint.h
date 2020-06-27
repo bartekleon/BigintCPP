@@ -3,26 +3,30 @@
 #ifndef BIGINT_H_
 #define BIGINT_H_
 
-#include <vector>
-#include <string>
+#include <algorithm>
+#include <cmath>
+#include <exception>
 #include <map>
 #include <sstream>
-#include <cmath>
+#include <string>
 #include <string_view>
-#include <algorithm>
+#include <vector>
 
 class Bigint {
 
 private:
 	std::vector<int> number;
-	mutable bool positive;
+	mutable bool positive = true;
 
 public:
 	// Constructors
-	Bigint();
+	Bigint() = default;
+	virtual ~Bigint() = default;
+	Bigint(const Bigint&) = default;
+	Bigint(Bigint&&) = default;
+
 	Bigint(long long);
 	Bigint(std::string_view);
-	Bigint(const Bigint&);
 
 	// Adding
 	Bigint operator+(Bigint const&) const;
@@ -59,7 +63,9 @@ public:
 	bool operator!=(const Bigint&) const;
 
 	// Allocation
-	Bigint operator=(std::string);
+	Bigint& operator=(const std::string&);
+	Bigint& operator=(const Bigint&) = default;
+	Bigint& operator=(Bigint&&) = default;
 
 	// Access
 	int operator[](int const&);
@@ -71,10 +77,10 @@ public:
 	// Helpers
 	void clear();
 	Bigint& abs();
-	std::string toString();
+	std::string toString() const;
 	int digits() const;
 	bool isEven();
-	bool isNegative();
+	bool isNegative() const;
 	Bigint clone();
 	void flipPositive() const;
 
@@ -84,10 +90,10 @@ public:
 	Bigint& pow(int const&);
 
 private:
-	int segmentLength(int) const;
+	static int segmentLength(int);
 	Bigint pow(int const&, std::map<int, Bigint>&);
 	int compare(Bigint const&) const; // 0 a == b, -1 a < b, 1 a > b
-	Bigint getFragment(Bigint&, int);
+	static Bigint getFragment(Bigint&, int);
 };
 
 std::string toString(Bigint const&);
