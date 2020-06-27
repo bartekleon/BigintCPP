@@ -63,6 +63,17 @@ TEST(SubtractionTests, SubtractionTests) {
 	EXPECT_TRUE(Bigint(32) - 123 == Bigint(-91));
 	EXPECT_TRUE(Bigint(0) - 123 == Bigint(-123));
 	EXPECT_TRUE(Bigint(123) - 0 == Bigint(123));
+
+	Bigint k = 3049023;
+	k -= 34234;
+
+	EXPECT_TRUE(k == Bigint(3014789));
+
+	Bigint f = 3123;
+	f -= 42309420844924;
+
+	EXPECT_TRUE(f == Bigint(-42309420841801));
+
 }
 
 TEST(MultiplicationTests, MultiplicationTests) {
