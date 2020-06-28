@@ -1,6 +1,7 @@
 #include <gtest/gtest.h>
 
 #include <fstream>
+#include <limits>
 
 #include "bigint.h"
 
@@ -36,12 +37,22 @@ TEST(SumationTests, SumationTests) {
 	EXPECT_TRUE(Bigint(22) + -82 == Bigint(-60));
 	EXPECT_TRUE(Bigint(-13) + -32 == Bigint(-45));
 	EXPECT_TRUE(Bigint(-32) + 123 == Bigint(91));
+	EXPECT_TRUE(Bigint(999999999) + Bigint(1) == Bigint(1000000000));
+	EXPECT_TRUE(Bigint(999999999) + 1 == Bigint(1000000000));
 
 	Bigint a(123);
 	a += 30;
 	a += 0;
 	
 	EXPECT_TRUE(a == Bigint(153));
+
+	Bigint b(1);
+
+	b += 999999999;
+
+	
+	EXPECT_TRUE(b == Bigint(1000000000));
+
 }
 
 TEST(SubtractionTests, SubtractionTests) {
@@ -74,6 +85,11 @@ TEST(SubtractionTests, SubtractionTests) {
 
 	EXPECT_TRUE(f == Bigint(-42309420841801));
 
+	Bigint g = 42309420844929;
+	g -= 42309420844924;
+	
+	EXPECT_TRUE(g == Bigint(5));
+
 }
 
 TEST(MultiplicationTests, MultiplicationTests) {
@@ -101,6 +117,9 @@ TEST(MultiplicationTests, MultiplicationTests) {
 	b *= Bigint("92384723897592748924789234389");
 
 	EXPECT_TRUE(b == Bigint("2170876855334063153876652533841878955740519322"));
+
+	EXPECT_TRUE(Bigint(454513) * 54234575622444 == Bigint("24650319669883889772"));
+	EXPECT_TRUE(Bigint(454513) * LLONG_MAX == Bigint("4192142494586974716366991"));
 }
 
 TEST(DivisionTests, DivisionTests) {
@@ -196,4 +215,22 @@ TEST(Access, Access) {
 	EXPECT_TRUE(Bigint("304839054389543804382543790782030318932382904234")[13] == 4);
 	EXPECT_TRUE(Bigint("304839054389543804382543790782030318932382904234")[44] == 4);
 	EXPECT_ANY_THROW(Bigint(1234)[4]);
+}
+
+TEST(Digits, Digits) {
+	EXPECT_TRUE(Bigint().digits() == 1);
+	EXPECT_TRUE(Bigint(0).digits() == 1);
+	EXPECT_TRUE(Bigint(34331231).digits() == 8);
+}
+
+namespace MOCK {
+	class Bigint {
+		private:
+			FRIEND_TEST(Bigint, segmentLength);
+			static int segmentLength(int);
+	};
+
+	TEST(Bigint, segmentLength) {
+		EXPECT_EQ(Bigint::segmentLength(0), 1);
+	}
 }
