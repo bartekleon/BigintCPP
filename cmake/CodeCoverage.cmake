@@ -110,7 +110,7 @@ FUNCTION(SETUP_TARGET_FOR_COVERAGE _targetname _testrunner _outputname)
 
         # Capturing lcov counters and generating report
         COMMAND ${LCOV_PATH} --directory . --base-directory . --capture --output-file coverage.info
-        COMMAND ${LCOV_PATH} --remove coverage.info '/usr*' '*/test/*' '*/googletest-release-1.8.0/*' -o coverage.info
+        COMMAND ${LCOV_PATH} --remove coverage.info '/usr*' '*/test/*' '*/googletest-release-1.10.0/*' -o coverage.info
 
         WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
         COMMENT "Resetting code coverage counters to zero.\nProcessing code coverage counters and generating report."

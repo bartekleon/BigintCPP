@@ -1,4 +1,5 @@
 #include <gtest/gtest.h>
+#include <gmock/gmock.h>
 
 #include <fstream>
 #include <climits>
@@ -223,14 +224,12 @@ TEST(Digits, Digits) {
 	EXPECT_TRUE(Bigint(34331231).digits() == 8);
 }
 
-namespace MOCK {
-	class Bigint {
-		private:
-			FRIEND_TEST(Bigint, segmentLength);
-			static int segmentLength(int);
-	};
+class BigintMock : public Bigint {
+	public:
+		MOCK_METHOD(int, segmentLength, (int a), (const));
+};
 
-	TEST(Bigint, segmentLength) {
-		EXPECT_EQ(Bigint::segmentLength(0), 1);
-	}
+TEST(segmentLength, segmentLength) {
+	BigintMock mock;  
+	EXPECT_CALL(mock, segmentLength(0)).Times(1).WillOnce(testing::Return(0));
 }
