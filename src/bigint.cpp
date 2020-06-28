@@ -304,20 +304,58 @@ Bigint& Bigint::operator*=(long long const& b1) {
 		b1_sign = false;
 	}
 
+	if (b >= 1000000000000000000) {
+		*this = *this * Bigint(b1);
+
+		return *this;
+	}
+
 	positive = b1_sign == positive;
+
+	std::vector<int> answer;
+	answer.reserve(number.size() + 3);
 
 	auto it = number.begin();
 	long long sum = 0;
 
+	int lowB = b % 1000000000;
+	int highB = b / 1000000000;
+
 	while (it != number.end()) {
-		sum += (long long)(*it) * b;
-		*it = (int)(sum % 1000000000);
+		sum += (long long)(*it) * lowB;
+		answer.push_back((int)(sum % 1000000000));
 		sum /= 1000000000;
 		++it;
 	}
 	if (sum != 0) {
-		number.push_back((int)sum);
+		answer.push_back((int)sum);
+		sum = 0;
 	}
+
+	if (highB != 0) {
+		it = number.begin();
+
+		auto ite = answer.begin() + 1;
+
+		while (it != number.end()) {
+			sum += (long long)(*it) * highB;
+			if (ite == answer.end()) {
+				answer.push_back((int)(sum % 1000000000));
+			} else {
+				*ite += (int)(sum % 1000000000);
+			}
+			sum /= 1000000000;
+			++it;
+			++ite;
+		}
+		if (sum != 0) {
+			answer.push_back((int)sum);
+		}
+	}
+
+	answer.shrink_to_fit();
+
+	number = answer;
 
 	return *this;
 }
@@ -336,7 +374,7 @@ int Bigint::digits() const {
 	int segments = number.size();
 
 	if (segments == 0) {
-		return 0;
+		return 1;
 	}
 
 	return 9 * (segments - 1) + segmentLength(number.back());
@@ -588,7 +626,7 @@ Bigint Bigint::clone() {
 
 int Bigint::segmentLength(int segment) {
 	if (segment == 0) {
-		return 0;
+		return 1;
 	}
 
 	return (int)std::log10(segment) + 1;
