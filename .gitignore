@@ -2,6 +2,10 @@
 cmake-build-debug
 .idea
 
+# vscode
+
+.vscode/**
+
 #build directory
 build
 

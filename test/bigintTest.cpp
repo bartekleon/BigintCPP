@@ -1,7 +1,7 @@
 #include <gtest/gtest.h>
 
 #include <fstream>
-#include <limits>
+#include <climits>
 
 #include "bigint.h"
 
