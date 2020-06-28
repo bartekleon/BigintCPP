@@ -291,7 +291,7 @@ Bigint Bigint::operator*(long long b) const {
 }
 
 Bigint& Bigint::operator*=(long long const& b1) {
-if (b1 == 0) {
+	if (b1 == 0) {
 		this->clear();
 
 		return *this;
