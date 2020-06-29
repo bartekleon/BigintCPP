@@ -1,5 +1,7 @@
 #include "bigint.h"
 
+constexpr static int pow10[10] = {1, 10, 100, 1000, 10000, 100000, 1000000, 10000000, 100000000, 1000000000};
+
 Bigint::Bigint(long long value) {
 	if (value < 0) {
 		positive = false;
@@ -29,14 +31,12 @@ Bigint::Bigint(std::string_view stringInteger) {
 
 		int length = 0;
 		int num = 0;
-		int prefix = 1;
 
 		for (int i = size - 1; i >= 0 && i >= size - 9; --i) {
 			if (stringInteger[i] < '0' || stringInteger[i] > '9') {
 				break;
 			}
-			num += (stringInteger[i] - '0') * prefix;
-			prefix *= 10;
+			num += (stringInteger[i] - '0') * pow10[length];
 			++length;
 		}
 		number.push_back(num);
@@ -69,7 +69,7 @@ Bigint& Bigint::operator+=(Bigint const& b) {
 		return *this;
 	}
 
-	auto it1 = this->number.begin();
+	auto it1 = number.begin();
 	auto it2 = b.number.begin();
 	int sum = 0;
 
@@ -255,22 +255,39 @@ Bigint Bigint::operator*(Bigint const& b) const {
 			return (Bigint)*this *= b.number[0];
 		}
 
-		return (Bigint)*this *= (long long)b.number[0] * -1;
+		return (Bigint)*this *= -b.number[0];
 	}
 
 	Bigint c(0);
+	long long sum = 0;
+
+	c.number.reserve(number.size() + b.number.size() + 3);
 
 	int i = 0;
-	int j = 0;
 
 	for (int it1 : number) {
-		j = 0;
+		auto ite = c.number.begin() + i;
 		for (int it2 : b.number) {
-			c += Bigint((long long)it1 * it2).addZeroes(i + j);
-			j += 9;
+			sum += (long long)it1 * it2;
+			if (ite == c.number.end()) {
+				c.number.push_back((int)(sum % 1000000000));
+				ite = c.number.end();
+			}
+			else {
+				sum += *ite;
+				*ite = (int)(sum % 1000000000);
+				++ite;
+			}
+			sum /= 1000000000;
 		}
-		i += 9;
+		if (sum != 0) {
+			c.number.push_back((int)(sum % 1000000000));
+			sum = 0;
+		}
+		++i;
 	}
+
+	c.number.shrink_to_fit();
 
 	c.positive = positive == b.positive;
 
@@ -401,7 +418,7 @@ Bigint Bigint::getFragment(Bigint& p, int size) {
 	int log = (int)std::log10(*it) + 1;
 
 	if (p.number.size() == 1 || log >= size) {
-		return Bigint((int)(*it / std::pow(10, log - size)));
+		return Bigint((int)(*it / pow10[log - size]));
 	}
 
 	if (p.digits() <= size) {
@@ -415,7 +432,7 @@ Bigint Bigint::getFragment(Bigint& p, int size) {
 	it -= i;
 	size -= i * 9;
 
-	int pow = std::pow(10, 9 - size);
+	int pow = pow10[9 - size];
 	int pow2 = 1000000000 / pow;
 
 	Bigint ret((*it) / pow);
@@ -679,7 +696,7 @@ Bigint Bigint::pow(int const& power, std::map<int, Bigint>& lookup) {
 		}
 		if (power == 0) {
 			this->clear();
-			this->number.push_back(1);
+			number.push_back(1);
 
 			return *this;
 		}
@@ -762,7 +779,7 @@ Bigint& Bigint::addZeroes(int num) {
 		return *this;
 	}
 
-	long long ten = std::pow(10, num % 9);
+	long long ten = pow10[num % 9];
 
 	if (ten != 1) {
 		int acum = 0;
@@ -773,18 +790,16 @@ Bigint& Bigint::addZeroes(int num) {
 			acum2 = acum;
 		}
 		if (acum != 0) {
-			this->number.push_back(acum);
+			number.push_back(acum);
 		}
 	}
 
 	if (num / 9 > 0) {
-		std::reverse(this->number.begin(), this->number.end());
+		std::reverse(number.begin(), number.end());
 
-		for (int i = 0; i < num / 9; i++) {
-			this->number.push_back(0);
-		}
+		number.resize(number.size() + num / 9, 0);
 
-		std::reverse(this->number.begin(), this->number.end());
+		std::reverse(number.begin(), number.end());
 	}
 
 	return *this;
