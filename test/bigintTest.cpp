@@ -129,6 +129,7 @@ TEST(DivisionTests, DivisionTests) {
 	EXPECT_TRUE((Bigint(-141) / Bigint(2)) == Bigint(-70));
 	EXPECT_TRUE((Bigint(1411) / Bigint(-123)) == Bigint(-11));
 	EXPECT_TRUE((Bigint(-141) / Bigint(-2)) == Bigint(70));
+	EXPECT_TRUE((Bigint(141) / Bigint(1323)) == Bigint(0));
 	EXPECT_TRUE((Bigint("23472390718913") / Bigint(13)) == Bigint("1805568516839"));
 	EXPECT_TRUE(
 		(Bigint("23472331074189168931468914618941490718913") / Bigint("942394729842789"))
@@ -141,7 +142,7 @@ TEST(DivisionTests, DivisionTests) {
 
 	EXPECT_TRUE(a == 205);
 
-	ASSERT_ANY_THROW(Bigint(123) / 0);
+	ASSERT_THROW(Bigint(123) / 0, std::invalid_argument);
 }
 
 TEST(AllocationTests, AllocationTests) {
@@ -170,6 +171,7 @@ TEST(PowerTests, PowerTests) {
 	EXPECT_TRUE(Bigint(3).pow(7) == Bigint(2187));
 	EXPECT_TRUE(Bigint(-2).pow(11) == Bigint(-2048));
 	EXPECT_TRUE(Bigint(-2).pow(8) == Bigint(256));
+	EXPECT_THROW(Bigint(123).pow(-4), std::domain_error);
 }
 
 TEST(Modulo, Modulo) {
@@ -178,6 +180,7 @@ TEST(Modulo, Modulo) {
 }
 
 TEST(IsEven, IsEven) {
+	EXPECT_TRUE(Bigint().isEven() == true);
 	EXPECT_TRUE(Bigint(132).isEven() == true);
 	EXPECT_TRUE(Bigint(-5).isEven() == false);
 	EXPECT_TRUE(Bigint("32923947912312189328682376811").isEven() == false);
@@ -202,6 +205,8 @@ TEST(Streams, Streams) {
 
 	EXPECT_TRUE(a.toString() == sLine);
 	EXPECT_TRUE(toString(a) == sLine);
+	EXPECT_TRUE(Bigint(-9).toString() == "-9");
+	EXPECT_TRUE(Bigint().toString() == "0");
 
 	Bigint b;
 	std::istringstream stream(sLine);
@@ -214,11 +219,15 @@ TEST(Streams, Streams) {
 TEST(Access, Access) {
 	EXPECT_TRUE(Bigint("304839054389543804382543790782030318932382904234")[13] == 4);
 	EXPECT_TRUE(Bigint("304839054389543804382543790782030318932382904234")[44] == 4);
-	EXPECT_ANY_THROW(Bigint(1234)[4]);
+	EXPECT_THROW(Bigint(1234)[4], std::out_of_range);
 }
 
 TEST(Digits, Digits) {
 	EXPECT_TRUE(Bigint().digits() == 1);
 	EXPECT_TRUE(Bigint(0).digits() == 1);
 	EXPECT_TRUE(Bigint(34331231).digits() == 8);
+}
+
+TEST(AddZeroes, AddZeroes) {
+	EXPECT_TRUE(Bigint(34331231).addZeroes(0) == Bigint(34331231));
 }
