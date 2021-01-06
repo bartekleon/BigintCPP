@@ -1,8 +1,10 @@
 #include "bigint.h"
 
-constexpr static int pow10[10] = {1, 10, 100, 1000, 10000, 100000, 1000000, 10000000, 100000000, 1000000000};
+namespace BigMath {
+	
+constexpr static std::array<int, 10> pow10 = { 1, 10, 100, 1000, 10000, 100000, 1000000, 10000000, 100000000, 1000000000 };
 
-Bigint::Bigint(long long value) {
+Bigint::Bigint(int64_t value) {
 	if (value < 0) {
 		positive = false;
 		value *= -1;
@@ -11,7 +13,7 @@ Bigint::Bigint(long long value) {
 	}
 
 	while (value != 0) {
-		number.push_back((int)(value % 1000000000));
+		number.push_back(value % 1000000000);
 		value /= 1000000000;
 	}
 }
@@ -36,7 +38,7 @@ Bigint::Bigint(std::string_view stringInteger) {
 			if (stringInteger[i] < '0' || stringInteger[i] > '9') {
 				break;
 			}
-			num += (stringInteger[i] - '0') * pow10[length];
+			num += (stringInteger[i] - '0') * pow10.at(length);
 			++length;
 		}
 		number.push_back(num);
@@ -69,17 +71,15 @@ Bigint& Bigint::operator+=(Bigint const& b) {
 		return *this;
 	}
 
+	number.resize(std::max(number.size(), b.number.size()), 0);
+
 	auto it1 = number.begin();
 	auto it2 = b.number.begin();
 	int sum = 0;
 
-	while (it1 != number.end() || it2 != b.number.end()) {
-		if (it1 != number.end()) {
-			sum += *it1;
-		} else {
-			number.push_back(0);
-			it1 = number.end() - 1;
-		}
+	while (it1 != number.end()) {
+		sum += *it1;
+
 		if (it2 != b.number.end()) {
 			sum += *it2;
 			++it2;
@@ -95,14 +95,14 @@ Bigint& Bigint::operator+=(Bigint const& b) {
 	return *this;
 }
 
-Bigint Bigint::operator+(long long const& b) const {
-	Bigint c = *this;
-	c += b;
+Bigint Bigint::operator+(int64_t const& b) const {
+    Bigint c = *this;
+    c += b;
 
 	return c;
 }
 
-Bigint& Bigint::operator+=(long long b) {
+Bigint& Bigint::operator+=(int64_t b) {
 	if (b == 0) {
 		return *this;
 	}
@@ -147,7 +147,7 @@ Bigint Bigint::operator-(Bigint const& b) const {
 }
 
 Bigint& Bigint::operator-=(Bigint const& b) {
-	if (b == 0) {
+	if (b == Bigint()) {
 		return *this;
 	}
 	if (!positive || !b.positive) {
@@ -184,7 +184,7 @@ Bigint& Bigint::operator-=(Bigint const& b) {
 		}
 	}
 	if (dif < 0) {
-		*this = Bigint(1).addZeroes(9 * (int)number.size()) - *this;
+		*this = Bigint(1).addZeroes(9 * number.size()) - *this;
 		positive = false;
 	}
 	while (!number.empty() && number.back() == 0) {
@@ -194,14 +194,14 @@ Bigint& Bigint::operator-=(Bigint const& b) {
 	return *this;
 }
 
-Bigint Bigint::operator-(long long const& b) const {
+Bigint Bigint::operator-(int64_t const& b) const {
 	Bigint c = *this;
 	c -= b;
 
 	return c;
 }
 
-Bigint& Bigint::operator-=(long long b) {
+Bigint& Bigint::operator-=(int64_t b) {
 	if (b == 0) {
 		return *this;
 	}
@@ -210,7 +210,7 @@ Bigint& Bigint::operator-=(long long b) {
 	}
 
 	auto it1 = number.begin();
-	int dif = 0;
+	int64_t dif = 0;
 
 	while (it1 != number.end() || b != 0) {
 		if (it1 != number.end()) {
@@ -221,20 +221,19 @@ Bigint& Bigint::operator-=(long long b) {
 			it1 = number.end();
 		}
 
-		dif -= (int)(b % 1000000000);
+		dif -= b % 1000000000;
 		b /= 1000000000;
 
 		if (dif < 0) {
 			*(it1 - 1) = (dif + 1000000000) % 1000000000;
 			dif = -1;
-		}
-		else {
+		} else {
 			*(it1 - 1) = dif % 1000000000;
 			dif /= 1000000000;
 		}
 	}
 	if (dif < 0) {
-		*this = Bigint(1).addZeroes(9 * (int)number.size()) - *this;
+		*this = Bigint(1).addZeroes(9 * number.size()) - *this;
 		positive = false;
 	}
 	while (!number.empty() && number.back() == 0) {
@@ -251,43 +250,38 @@ Bigint Bigint::operator-() {
 
 Bigint Bigint::operator*(Bigint const& b) const {
 	if (b.number.size() == 1) {
-		if (b.positive) {
-			return (Bigint)*this *= b.number[0];
-		}
-
-		return (Bigint)*this *= -b.number[0];
+		Bigint c(*this);
+        c *= b.positive ? b.number[0] : -b.number[0];
+        return c;
 	}
 
 	Bigint c(0);
-	long long sum = 0;
+	int64_t sum = 0;
 
-	c.number.reserve(number.size() + b.number.size() + 3);
+	c.number.reserve(number.size() + b.number.size());
 
 	int i = 0;
 
 	for (int it1 : number) {
 		auto ite = c.number.begin() + i;
 		for (int it2 : b.number) {
-			sum += (long long)it1 * it2;
+			sum += static_cast<int64_t>(it1) * it2;
 			if (ite == c.number.end()) {
-				c.number.push_back((int)(sum % 1000000000));
+				c.number.push_back(sum % 1000000000);
 				ite = c.number.end();
-			}
-			else {
+			} else {
 				sum += *ite;
-				*ite = (int)(sum % 1000000000);
+				*ite = sum % 1000000000;
 				++ite;
 			}
 			sum /= 1000000000;
 		}
 		if (sum != 0) {
-			c.number.push_back((int)(sum % 1000000000));
+			c.number.push_back(sum % 1000000000);
 			sum = 0;
 		}
 		++i;
 	}
-
-	c.number.shrink_to_fit();
 
 	c.positive = positive == b.positive;
 
@@ -300,21 +294,21 @@ Bigint& Bigint::operator*=(Bigint const& b) {
 	return *this;
 }
 
-Bigint Bigint::operator*(long long b) const {
+Bigint Bigint::operator*(int64_t b) const {
 	Bigint c = *this;
 	c *= b;
 
 	return c;
 }
 
-Bigint& Bigint::operator*=(long long const& b1) {
+Bigint& Bigint::operator*=(int64_t const& b1) {
 	if (b1 == 0) {
 		this->clear();
 
 		return *this;
 	}
 	bool b1_sign = true;
-	long long b = b1;
+	int64_t b = b1;
 
 	if (b1 < 0) {
 		b = -b;
@@ -330,22 +324,22 @@ Bigint& Bigint::operator*=(long long const& b1) {
 	positive = b1_sign == positive;
 
 	std::vector<int> answer;
-	answer.reserve(number.size() + 3);
+	answer.reserve(number.size());
 
 	auto it = number.begin();
-	long long sum = 0;
+	int64_t sum = 0;
 
-	int lowB = b % 1000000000;
-	int highB = b / 1000000000;
+	int64_t lowB = b % 1000000000;
+	int64_t highB = b / 1000000000;
 
 	while (it != number.end()) {
-		sum += (long long)(*it) * lowB;
-		answer.push_back((int)(sum % 1000000000));
+		sum += lowB * (*it);
+		answer.push_back(sum % 1000000000);
 		sum /= 1000000000;
 		++it;
 	}
 	if (sum != 0) {
-		answer.push_back((int)sum);
+		answer.push_back(sum);
 		sum = 0;
 	}
 
@@ -355,34 +349,32 @@ Bigint& Bigint::operator*=(long long const& b1) {
 		auto ite = answer.begin() + 1;
 
 		while (it != number.end()) {
-			sum += (long long)(*it) * highB;
+			sum += highB * (*it);
 			if (ite == answer.end()) {
-				answer.push_back((int)(sum % 1000000000));
+				answer.push_back(sum % 1000000000);
 			} else {
-				*ite += (int)(sum % 1000000000);
+				*ite += sum % 1000000000;
 			}
 			sum /= 1000000000;
 			++it;
 			++ite;
 		}
 		if (sum != 0) {
-			answer.push_back((int)sum);
+			answer.push_back(sum);
 		}
 	}
 
-	answer.shrink_to_fit();
-
-	number = answer;
+	number = std::move(answer);
 
 	return *this;
 }
 
-Bigint& Bigint::pow(int const& power) {
+Bigint& Bigint::pow(unsigned int const& power) {
 	std::map<int, Bigint> lookup;
 	if (power % 2 == 0 && !positive) {
 		positive = true;
 	}
-	*this = pow(power, lookup);
+	*this = pow(power, &lookup);
 
 	return *this;
 }
@@ -402,23 +394,19 @@ bool Bigint::isEven() {
 		return true;
 	}
 
-	if (number.size() == 1) {
-		return number[0] % 2 == 0;
-	}
-
-	return *(number.begin()) % 2 == 0;
+	return number[0] % 2 == 0;
 }
 
 bool Bigint::isNegative() const {
 	return !this->positive;
 }
 
-Bigint Bigint::getFragment(Bigint& p, int size) {
+Bigint Bigint::getFragment(const Bigint& p, int size) {
 	auto it = p.number.end() - 1;
-	int log = (int)std::log10(*it) + 1;
+	int log = static_cast<int>(std::log10(*it)) + 1;
 
 	if (p.number.size() == 1 || log >= size) {
-		return Bigint((int)(*it / pow10[log - size]));
+		return Bigint((*it / pow10.at(log - size)));
 	}
 
 	if (p.digits() <= size) {
@@ -432,10 +420,12 @@ Bigint Bigint::getFragment(Bigint& p, int size) {
 	it -= i;
 	size -= i * 9;
 
-	int pow = pow10[9 - size];
+	int pow = pow10.at(9 - size);
 	int pow2 = 1000000000 / pow;
 
 	Bigint ret((*it) / pow);
+
+	ret.number.reserve(std::distance(it, p.number.end()));
 
 	++it;
 
@@ -447,7 +437,7 @@ Bigint Bigint::getFragment(Bigint& p, int size) {
 		i++;
 	}
 
-	if (*(ret.number.end() - 1) == 0) {
+	if (ret.number.back() == 0) {
 		ret.number.pop_back();
 	}
 
@@ -472,17 +462,19 @@ Bigint Bigint::operator/(Bigint q) {
 		return *this;
 	}
 	if (number.size() == 1) {
-		number[0] = (int)(number.at(0) / q.number.at(0));
+		number[0] = number.at(0) / q.number.at(0);
 
 		return *this;
 	}
 
-	Bigint sum_quotient, sub_p, tmpx1;
-	int tmp_quotient = 0;
+	Bigint sum_quotient;
+	Bigint sub_p;
+	Bigint tmpx1;
+	unsigned int tmp_quotient = 0;
 
-	Bigint look_up[4] = { q, q * 2, q * 4, q * 8 };
+	const std::array<Bigint, 4> look_up = { q, q * 2, q * 4, q * 8 };
 
-	int look_up_digits[4] = {
+	const std::array<int, 4> look_up_digits = {
 		look_up[0].digits(),
 		look_up[1].digits(),
 		look_up[2].digits(),
@@ -490,7 +482,7 @@ Bigint Bigint::operator/(Bigint q) {
 	};
 
 	while (true) {
-		int digitsP = p.digits();
+		const int digitsP = p.digits();
 		int digitsQ = look_up_digits[3];
 
 		if (digitsP - look_up_digits[0] < 0) {
@@ -500,16 +492,15 @@ Bigint Bigint::operator/(Bigint q) {
 
 		if (digitsP - digitsQ < 0) {
 			sub_p = getFragment(p, look_up_digits[0]);
-		}
-		else {
+		} else {
 			sub_p = getFragment(p, digitsQ);
 		}
 
-		for (int i = 3; i >= 0; i--) {
-			if (sub_p >= look_up[i]) {
-				tmpx1 = look_up[i];
-				digitsQ = look_up_digits[i];
-				tmp_quotient = 1 << i;
+		for (unsigned int i = 3; i >= 0; i--) {
+			if (sub_p >= look_up.at(i)) {
+				tmpx1 = look_up.at(i);
+				digitsQ = look_up_digits.at(i);
+				tmp_quotient = 1U << i;
 				break;
 			}
 			if (i == 0) {
@@ -518,13 +509,12 @@ Bigint Bigint::operator/(Bigint q) {
 			}
 		}
 
-		int k = digitsP - look_up_digits[3] - (look_up_digits[3] - digitsQ);
+		const int k = digitsP - look_up_digits[3] - look_up_digits[3] + digitsQ;
 
 		if (k > 0) {
 			sum_quotient = sum_quotient + Bigint(tmp_quotient).addZeroes(k);
 			p = p - tmpx1.addZeroes(k);
-		}
-		else {
+		} else {
 			sum_quotient = sum_quotient + tmp_quotient;
 			p = p - tmpx1;
 		}
@@ -537,22 +527,22 @@ Bigint& Bigint::operator/=(Bigint const& q) {
 	return *this;
 }
 
-long long Bigint::operator%(long long const& divisor) {
-	long long remains = 0;
+int64_t Bigint::operator%(int64_t const& divisor) const {
+	if(number.empty()) {
+		return 0;
+	}
+	int64_t remains = 0;
+    const size_t s = number.size() - 1;
 
-	for (int i = 0; i < number.size(); i++) {
-		remains = (remains + number[number.size() - i - 1]) % divisor;
-		if (i != number.size() - 1) {
+	for (size_t i = 0; i < number.size(); i++) {
+		remains = (remains + number[s - i]) % divisor;
+		if (i != s) {
 			remains *= 1000000000;
 			remains %= divisor;
 		}
 	}
 
-	if (positive) {
-		return remains;
-	}
-
-	return -remains;
+	return positive ? remains : -remains;
 }
 
 bool Bigint::operator<(const Bigint& b) const {
@@ -564,15 +554,11 @@ bool Bigint::operator>(const Bigint& b) const {
 }
 
 bool Bigint::operator<=(const Bigint& b) const {
-	int compared = compare(b);
-
-	return compared == 0 || compared == -1;
+	return compare(b) != 1;
 }
 
 bool Bigint::operator>=(const Bigint& b) const {
-	int compared = compare(b);
-
-	return compared == 0 || compared == 1;
+	return compare(b) != -1;
 }
 
 bool Bigint::operator==(const Bigint& b) const {
@@ -585,14 +571,14 @@ bool Bigint::operator!=(const Bigint& b) const {
 
 Bigint& Bigint::operator=(const std::string& a) {
 	Bigint tmp(a);
-	number = tmp.number;
+	number = std::move(tmp.number);
 	positive = tmp.positive;
 
 	return *this;
 }
 
-int Bigint::operator[](int const& b) {
-	int size = this->digits();
+int Bigint::operator[](int const& b) const {
+	const int size = this->digits();
 
 	if (b >= size) {
 		throw std::out_of_range("Number out of bounds");
@@ -602,21 +588,22 @@ int Bigint::operator[](int const& b) {
 		return number.back();
 	}
 
-	int sizeAtBack = (int)std::log10(number.back()) + 1;
+	const int sizeAtBack = static_cast<int>(std::log10(number.back())) + 1;
 
 	if (sizeAtBack > b) {
-		return std::to_string(number.back())[b] - '0';
+		return number.back() / pow10.at(sizeAtBack - b) % 10;
 	}
 
-	int f = b - sizeAtBack;
+	const int f = b - sizeAtBack;
 
-	std::string part = std::to_string(number.at(number.size() - 2 - (f / 9)));
+    const int num = number.at(number.size() - 2 - (f / 9));
+    const int numSize = segmentLength(num);
 
-	if (part.size() < 9) {
-		return part[f % 9 + (9 - part.size())] - '0';
-	}
+    if (numSize < 9) {
+        return num / pow10.at(f % 9 + (9 - numSize)) % 10;
+    }
 
-	return part[f % 9] - '0';
+	return num / pow10.at(numSize - 1 - f % 9) % 10;
 }
 
 void Bigint::clear() {
@@ -641,12 +628,12 @@ Bigint Bigint::clone() {
 	return Bigint(*this);
 }
 
-int Bigint::segmentLength(int segment) {
+constexpr int Bigint::segmentLength(int segment) {
 	if (segment == 0) {
 		return 1;
 	}
 
-	return (int)std::log10(segment) + 1;
+	return static_cast<int>(std::log10(segment)) + 1;
 }
 
 std::istream& operator>>(std::istream& in, Bigint& a) {
@@ -663,7 +650,7 @@ std::ostream& operator<<(std::ostream& out, Bigint const& a) {
 		return out << '0';
 	}
 
-	int i = (int)a.number.size() - 1;
+	int64_t i = a.number.size() - 1;
 	for (; i >= 0 && a.number[i] == 0; --i) {};
 
 	if (i == -1) {
@@ -689,39 +676,35 @@ std::ostream& operator<<(std::ostream& out, Bigint const& a) {
 	return out;
 }
 
-Bigint Bigint::pow(int const& power, std::map<int, Bigint>& lookup) {
-	if (power < 2) {
-		if (power == 1) {
-			return *this;
-		}
-		if (power == 0) {
-			this->clear();
-			number.push_back(1);
+Bigint Bigint::pow(unsigned int const& power, std::map<int, Bigint>* lookup) {
+	if (power == 1) {
+		return *this;
+	}
+	if (power == 0) {
+		this->clear();
+		number.push_back(1);
 
-			return *this;
-		}
-
-		throw std::domain_error("Exponent must be positive");
+		return *this;
 	}
 
-	if (lookup.count(power) != 0) {
-		return lookup[power];
+	if (lookup->count(power) != 0) {
+		return lookup->at(power);
 	}
 
-	int closestPower = 1;
+	unsigned int closestPower = 1;
 	while (closestPower < power) {
-		closestPower <<= 1;
+		closestPower <<= 1U;
 	}
-	closestPower >>= 1;
+	closestPower >>= 1U;
 
 	if (power == closestPower) {
 		Bigint doub = pow(power / 2, lookup);
-		lookup[power] = doub * doub;
+		lookup->emplace(std::pair<int, Bigint>(power, doub * doub));
 	} else {
-		lookup[power] = pow(closestPower, lookup) * pow(power - closestPower, lookup);
+		lookup->emplace(std::pair<int, Bigint>(power, pow(closestPower, lookup) * pow(power - closestPower, lookup)));
 	}
 
-	return lookup[power];
+	return lookup->at(power);
 }
 
 int Bigint::compare(const Bigint& a) const {
@@ -770,24 +753,23 @@ int Bigint::compare(const Bigint& a) const {
 	return 0;
 }
 
-void Bigint::flipPositive() const {
+constexpr void Bigint::flipPositive() const {
 	this->positive = !this->positive;
 }
 
-Bigint& Bigint::addZeroes(int num) {
+Bigint& Bigint::addZeroes(unsigned int num) {
 	if (num == 0) {
 		return *this;
 	}
 
-	long long ten = pow10[num % 9];
+	const int64_t ten = pow10.at(num % 9);
 
 	if (ten != 1) {
 		int acum = 0;
-		int acum2 = 0;
-		for (auto it = number.begin(); it != number.end(); ++it) {
-			acum = (int)(ten * (*it) / 1000000000);
-			*it = (int)((ten * (*it) + acum2) % 1000000000);
-			acum2 = acum;
+		for (auto& it : number) {
+			int64_t mul = ten * it;
+			it = static_cast<int>((mul + acum) % 1000000000);
+			acum = static_cast<int>(mul / 1000000000);
 		}
 		if (acum != 0) {
 			number.push_back(acum);
@@ -810,4 +792,6 @@ std::string toString(Bigint const& value) {
 	stream << value;
 
 	return stream.str();
+}
+
 }

@@ -1,0 +1,5 @@
+---
+Checks:          '*,-fuchsia-*,-google-*,-zircon-*,-abseil-*,-modernize-use-trailing-return-type,-llvm-*,-llvmlibc-*,-misc-no-recursion,-cppcoreguidelines-avoid-magic-numbers,-readability-magic-numbers,-hicpp-explicit-conversions'
+WarningsAsErrors: '*'
+HeaderFilterRegex: ''
+FormatStyle:     none

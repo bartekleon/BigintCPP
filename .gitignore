@@ -2,6 +2,14 @@
 cmake-build-debug
 .idea
 
+# vscode
+.vscode
+.clangd
+
+# Cmake
+CMakeFiles
+CMakeCache.txt
+
 #build directory
 build
 

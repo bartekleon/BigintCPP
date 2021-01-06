@@ -1,9 +1,11 @@
 #include <gtest/gtest.h>
 
-#include <fstream>
 #include <climits>
+#include <fstream>
 
 #include "bigint.h"
+
+using BigMath::Bigint;
 
 TEST(ComparisonTests, ComparisonTests) {
 	ASSERT_TRUE(Bigint(123) == Bigint(123));
@@ -50,9 +52,7 @@ TEST(SumationTests, SumationTests) {
 
 	b += 999999999;
 
-	
 	EXPECT_TRUE(b == Bigint(1000000000));
-
 }
 
 TEST(SubtractionTests, SubtractionTests) {
@@ -89,7 +89,6 @@ TEST(SubtractionTests, SubtractionTests) {
 	g -= 42309420844924;
 	
 	EXPECT_TRUE(g == Bigint(5));
-
 }
 
 TEST(MultiplicationTests, MultiplicationTests) {
@@ -142,7 +141,7 @@ TEST(DivisionTests, DivisionTests) {
 
 	EXPECT_TRUE(a == 205);
 
-	ASSERT_THROW(Bigint(123) / 0, std::invalid_argument);
+	EXPECT_THROW(Bigint(123) / 0, std::invalid_argument);
 }
 
 TEST(AllocationTests, AllocationTests) {
@@ -171,7 +170,6 @@ TEST(PowerTests, PowerTests) {
 	EXPECT_TRUE(Bigint(3).pow(7) == Bigint(2187));
 	EXPECT_TRUE(Bigint(-2).pow(11) == Bigint(-2048));
 	EXPECT_TRUE(Bigint(-2).pow(8) == Bigint(256));
-	EXPECT_THROW(Bigint(123).pow(-4), std::domain_error);
 }
 
 TEST(Modulo, Modulo) {
@@ -180,14 +178,15 @@ TEST(Modulo, Modulo) {
 }
 
 TEST(IsEven, IsEven) {
-	EXPECT_TRUE(Bigint().isEven() == true);
-	EXPECT_TRUE(Bigint(132).isEven() == true);
-	EXPECT_TRUE(Bigint(-5).isEven() == false);
-	EXPECT_TRUE(Bigint("32923947912312189328682376811").isEven() == false);
+	EXPECT_TRUE(Bigint().isEven());
+	EXPECT_TRUE(Bigint(132).isEven());
+	EXPECT_FALSE(Bigint(-5).isEven());
+	EXPECT_FALSE(Bigint("32923947912312189328682376811").isEven());
 }
 
 TEST(ABS, ABS) {
 	EXPECT_TRUE(Bigint("-239847892391").abs() == Bigint("239847892391"));
+	EXPECT_TRUE(Bigint("239847892391").abs() == Bigint("239847892391"));
 }
 
 TEST(Clone, Clone) {
@@ -219,7 +218,7 @@ TEST(Streams, Streams) {
 TEST(Access, Access) {
 	EXPECT_TRUE(Bigint("304839054389543804382543790782030318932382904234")[13] == 4);
 	EXPECT_TRUE(Bigint("304839054389543804382543790782030318932382904234")[44] == 4);
-	EXPECT_THROW(Bigint(1234)[4], std::out_of_range);
+	EXPECT_THROW(int a = Bigint(1234)[4], std::out_of_range);
 }
 
 TEST(Digits, Digits) {
@@ -230,4 +229,5 @@ TEST(Digits, Digits) {
 
 TEST(AddZeroes, AddZeroes) {
 	EXPECT_TRUE(Bigint(34331231).addZeroes(0) == Bigint(34331231));
+	EXPECT_TRUE(Bigint(34331231).addZeroes(5) == Bigint(3433123100000));
 }
