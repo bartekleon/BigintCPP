@@ -2,9 +2,9 @@ FIND_PROGRAM( GCOV_PATH gcov )
 FIND_PROGRAM( LCOV_PATH NAMES lcov lcov.bat lcov.exe lcov.perl )
 FIND_PROGRAM( GENHTML_PATH NAMES genhtml genhtml.perl genhtml.bat )
 FIND_PROGRAM( GCOVR_PATH gcovr PATHS ${CMAKE_SOURCE_DIR}/test)
-find_program(GENINFO_BIN geninfo )
+find_program( GENINFO_BIN geninfo )
 
-find_package_handle_standard_args(lcov REQUIRED_VARS LCOV_BIN GENINFO_BIN GENHTML_BIN)
+find_package_handle_standard_args(lcov REQUIRED_VARS LCOV_PATH GENINFO_BIN GENHTML_PATH)
 
 IF(NOT GCOV_PATH)
     MESSAGE(FATAL_ERROR "gcov not found! Aborting...")
