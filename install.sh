@@ -5,3 +5,4 @@ sudo ./llvm.sh
 
 pip install codecov
 sudo apt-get install -y lcov
+sudo apt-get install -y clang-tools
