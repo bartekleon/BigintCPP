@@ -51,9 +51,6 @@ FUNCTION(SETUP_TARGET_FOR_COVERAGE _targetname _testrunner)
         MESSAGE(FATAL_ERROR "genhtml not found! Aborting...")
     ENDIF() # NOT GENHTML_PATH
 
-    SET(coverage_info "${CMAKE_BINARY_DIR}/coverage.info")
-    SET(coverage_cleaned "${coverage_info}.cleaned")
-
     SEPARATE_ARGUMENTS(test_command UNIX_COMMAND "${_testrunner}")
 
     # Setup target
