@@ -1,5 +1,6 @@
 [![Build Status](https://travis-ci.com/kmdrGroch/BigintCPP.svg?branch=master)](https://travis-ci.com/kmdrGroch/BigintCPP) [![codecov](https://codecov.io/gh/kmdrGroch/BigintCPP/branch/master/graph/badge.svg)](https://codecov.io/gh/kmdrGroch/BigintCPP)
 
+[Requirements](#requirements)
 [Description](#description)
 
 [Operators](#operators)
@@ -30,6 +31,13 @@
 [Functions](#functions)
 
 *  [toString](#tostringbigint)
+
+# Requirements
+
+To build this project you need: CMake, make, gcc/clang.
+Also build.sh requires you to have installed and in path: clang-format, clang-tidy
+
+For testing you need additionally lcov with it's tools: geninfo and gcov.
 
 # Description
 
