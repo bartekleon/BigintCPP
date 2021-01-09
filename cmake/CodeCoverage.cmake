@@ -1,7 +1,9 @@
 FIND_PROGRAM( GCOV_PATH gcov )
 FIND_PROGRAM( LCOV_PATH lcov )
-FIND_PROGRAM( GENHTML_PATH genhtml )
-FIND_PROGRAM( GCOVR_PATH gcovr PATHS ${CMAKE_SOURCE_DIR}/test)
+
+IF(NOT LCOV_PATH)
+    MESSAGE(FATAL_ERROR "lcov not found! Aborting...")
+ENDIF() # NOT LCOV_PATH
 
 IF(NOT GCOV_PATH)
     MESSAGE(FATAL_ERROR "gcov not found! Aborting...")
@@ -42,15 +44,6 @@ IF ( NOT (CMAKE_BUILD_TYPE STREQUAL "Debug" OR CMAKE_BUILD_TYPE STREQUAL "Covera
 ENDIF() # NOT CMAKE_BUILD_TYPE STREQUAL "Debug"
 
 FUNCTION(SETUP_TARGET_FOR_COVERAGE _targetname _testrunner)
-
-    IF(NOT LCOV_PATH)
-        MESSAGE(FATAL_ERROR "lcov not found! Aborting...")
-    ENDIF() # NOT LCOV_PATH
-
-    IF(NOT GENHTML_PATH)
-        MESSAGE(FATAL_ERROR "genhtml not found! Aborting...")
-    ENDIF() # NOT GENHTML_PATH
-
     SEPARATE_ARGUMENTS(test_command UNIX_COMMAND "${_testrunner}")
 
     # Setup target
@@ -61,10 +54,6 @@ FUNCTION(SETUP_TARGET_FOR_COVERAGE _targetname _testrunner)
 
         # Run tests
         COMMAND ${test_command} ${ARGV3}
-
-        COMMAND lcov --version
-        COMMAND gcov --version
-        COMMAND g++ --version
 
         # Capturing lcov counters and generating report
         COMMAND ${LCOV_PATH} --directory . --base-directory . --capture --output-file coverage.info
