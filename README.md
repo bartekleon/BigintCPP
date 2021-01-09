@@ -21,11 +21,11 @@
 *  [clear](#clear)
 *  [abs](#abs)
 *  [digits](#digits)
-*  [isEven](#isEven)
-*  [isNegative](#isNegative)
-*  [toString](#tostring)
+*  [is_even](#is_even)
+*  [is_negative](#is_negative)
+*  [to_string](#to_string)
 *  [clone](#clone)
-*  [addZeroes](#addZeroes)
+*  [add_zeroes](#add_zeroes)
 
 [Functions](#functions)
 
@@ -150,21 +150,21 @@ Bigint a = 4558;
 cout << a.pow(486).digits(); // 4558^486 = 1779 digit number
 ```
 
-## isEven()
+## is_even()
 Returns true is the number is even.
 ```C++
 Bigint a = 4558;
 cout << a.isEven(); // true
 ```
 
-## isNegative()
+## is_negative()
 Returns true is the number is negative.
 ```C++
 Bigint a = -4558;
 cout << a.isNegative(); // true
 ```
 
-## toString()
+## to_string()
 Converts the big integer to a string.
 ```C++
 string str;
@@ -180,7 +180,7 @@ Bigint b = a.clone();
 cout << a == b // true
 ```
 
-## addZeroes()
+## add_zeroes()
 Multiples number by pow(10, n)
 ```C++
 Bigint a = 455897864531248;
@@ -191,7 +191,7 @@ cout << a.addZeroes(3) // 4558978645312480000000
 
 # Functions
 
-## toString(Bigint)
+## to_string(Bigint)
 Converts the big integer to a string.
 ```C++
 string str;

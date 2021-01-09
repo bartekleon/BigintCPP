@@ -1,797 +1,798 @@
 #include "bigint.h"
 
 namespace BigMath {
-	
-constexpr static std::array<int, 10> pow10 = { 1, 10, 100, 1000, 10000, 100000, 1000000, 10000000, 100000000, 1000000000 };
+
+constexpr static std::array<int32_t, 10> POW10 = { 1, 10, 100, 1000, 10000, 100000, 1000000, 10000000, 100000000, 1000000000 };
 
 Bigint::Bigint(int64_t value) {
-	if (value < 0) {
-		positive = false;
-		value *= -1;
-	} else {
-		positive = true;
-	}
+  if (value < 0) {
+    positive = false;
+    value *= -1;
+  } else {
+    positive = true;
+  }
 
-	while (value != 0) {
-		number.push_back(value % 1000000000);
-		value /= 1000000000;
-	}
+  while (value != 0) {
+    number.push_back(value % 1000000000);
+    value /= 1000000000;
+  }
 }
 
-Bigint::Bigint(std::string_view stringInteger) {
-	int size = stringInteger.length();
+Bigint::Bigint(std::string_view string) {
+  int32_t size = string.length();
 
-	positive = stringInteger[0] != '-';
+  positive = string[0] != '-';
 
-	while (true) {
-		if (size <= 0) {
-			break;
-		}
-		if (!positive && size <= 1) {
-			break;
-		}
+  while (true) {
+    if (size <= 0) {
+      break;
+    }
+    if (!positive && size <= 1) {
+      break;
+    }
 
-		int length = 0;
-		int num = 0;
+    int32_t length = 0;
+    int32_t num = 0;
 
-		for (int i = size - 1; i >= 0 && i >= size - 9; --i) {
-			if (stringInteger[i] < '0' || stringInteger[i] > '9') {
-				break;
-			}
-			num += (stringInteger[i] - '0') * pow10.at(length);
-			++length;
-		}
-		number.push_back(num);
-		size -= length;
-	}
+    for (int32_t idx = size - 1; idx >= 0 && idx >= size - 9; --idx) {
+      if (string[idx] < '0' || string[idx] > '9') {
+        break;
+      }
+      num += (string[idx] - '0') * POW10.at(length);
+      ++length;
+    }
+    number.push_back(num);
+    size -= length;
+  }
 }
 
-Bigint Bigint::operator+(Bigint const& b) const {
-	Bigint c = *this;
-	c += b;
+Bigint Bigint::operator+(Bigint const &right) const {
+  Bigint c = *this;
+  c += right;
 
-	return c;
+  return c;
 }
 
-Bigint& Bigint::operator+=(Bigint const& b) {
-	if (positive && !b.positive) {
-		b.flipPositive();
+Bigint &Bigint::operator+=(Bigint const &right) {
+  if (positive && !right.positive) {
+    right.flip_sign();
 
-		*this -= b;
+    *this -= right;
 
-		b.flipPositive();
-		return *this;
-	}
-	if (!positive && b.positive) {
-		flipPositive();
+    right.flip_sign();
+    return *this;
+  }
+  if (!positive && right.positive) {
+    flip_sign();
 
-		*this -= b;
+    *this -= right;
 
-		flipPositive();
-		return *this;
-	}
+    flip_sign();
+    return *this;
+  }
 
-	number.resize(std::max(number.size(), b.number.size()), 0);
+  number.resize(std::max(number.size(), right.number.size()), 0);
 
-	auto it1 = number.begin();
-	auto it2 = b.number.begin();
-	int sum = 0;
+  int32_t *ptr_left = number.begin();
+  int32_t *ptr_right = right.number.begin();
+  int32_t sum = 0;
 
-	while (it1 != number.end()) {
-		sum += *it1;
+  while (ptr_left != number.end()) {
+    sum += *ptr_left;
 
-		if (it2 != b.number.end()) {
-			sum += *it2;
-			++it2;
-		}
-		*it1 = sum % 1000000000;
-		it1++;
-		sum /= 1000000000;
-	}
-	if (sum != 0) {
-		number.push_back(1);
-	}
+    if (ptr_right != right.number.end()) {
+      sum += *ptr_right;
+      ++ptr_right;
+    }
+    *ptr_left = sum % 1000000000;
+    ptr_left++;
+    sum /= 1000000000;
+  }
+  if (sum != 0) {
+    number.push_back(1);
+  }
 
-	return *this;
+  return *this;
 }
 
-Bigint Bigint::operator+(int64_t const& b) const {
-    Bigint c = *this;
-    c += b;
+Bigint Bigint::operator+(int64_t const &value) const {
+  Bigint c = *this;
+  c += value;
 
-	return c;
+  return c;
 }
 
-Bigint& Bigint::operator+=(int64_t b) {
-	if (b == 0) {
-		return *this;
-	}
-	if (positive && b < 0) {
-		return *this -= -b;
-	}
-	if (!positive && b > 0) {
-		flipPositive();
+Bigint &Bigint::operator+=(int64_t value) {
+  if (value == 0) {
+    return *this;
+  }
+  if (positive && value < 0) {
+    return *this -= -value;
+  }
+  if (!positive && value > 0) {
+    flip_sign();
 
-		*this -= b;
+    *this -= value;
 
-		flipPositive();
-		return *this;
-	}
-	if (!positive && b < 0) {
-		b = -b;
-	}
+    flip_sign();
+    return *this;
+  }
+  if (!positive && value < 0) {
+    value = -value;
+  }
 
-	auto it = number.begin();
+  int32_t *ptr = number.begin();
 
-	while (b != 0) {
-		if (it != number.end()) {
-			*it += b % 1000000000;
-			b /= 1000000000;
-			b += *it / 1000000000;
-			*it %= 1000000000;
-			++it;
-		} else {
-			number.push_back(0);
-			it = number.end() - 1;
-		}
-	}
+  while (value != 0) {
+    if (ptr != number.end()) {
+      *ptr += static_cast<int32_t>(value % 1000000000);
+      value /= 1000000000;
+      value += *ptr / 1000000000;
+      *ptr %= 1000000000;
+      ++ptr;
+    } else {
+      number.push_back(0);
+      ptr = number.end() - 1;
+    }
+  }
 
-	return *this;
+  return *this;
 }
 
-Bigint Bigint::operator-(Bigint const& b) const {
-	Bigint c = *this;
-	c -= b;
+Bigint Bigint::operator-(Bigint const &right) const {
+  Bigint c = *this;
+  c -= right;
 
-	return c;
+  return c;
 }
 
-Bigint& Bigint::operator-=(Bigint const& b) {
-	if (b == Bigint()) {
-		return *this;
-	}
-	if (!positive || !b.positive) {
-		b.flipPositive();
+Bigint &Bigint::operator-=(Bigint const &right) {
+  if (Bigint() == right) {
+    return *this;
+  }
+  if (!positive || !right.positive) {
+    right.flip_sign();
 
-		*this += b;
+    *this += right;
 
-		b.flipPositive();
-		return *this;
-	}
+    right.flip_sign();
+    return *this;
+  }
 
-	auto it1 = number.begin();
-	auto it2 = b.number.begin();
-	int dif = 0;
+  int32_t *ptr_left = number.begin();
+  int32_t *ptr_right = right.number.begin();
+  int32_t diff = 0;
 
-	while (it1 != number.end() || it2 != b.number.end()) {
-		if (it1 != number.end()) {
-			dif += *it1;
-			++it1;
-		} else {
-			number.push_back(0);
-			it1 = number.end();
-		}
-		if (it2 != b.number.end()) {
-			dif -= *it2;
-			++it2;
-		}
-		if (dif < 0) {
-			*(it1 - 1) = (dif + 1000000000) % 1000000000;
-			dif = -1;
-		} else {
-			*(it1 - 1) = dif % 1000000000;
-			dif /= 1000000000;
-		}
-	}
-	if (dif < 0) {
-		*this = Bigint(1).addZeroes(9 * number.size()) - *this;
-		positive = false;
-	}
-	while (!number.empty() && number.back() == 0) {
-		number.pop_back();
-	}
+  while (ptr_left != number.end() || ptr_right != right.number.end()) {
+    if (ptr_left != number.end()) {
+      diff += *ptr_left;
+      ++ptr_left;
+    } else {
+      number.push_back(0);
+      ptr_left = number.end();
+    }
+    if (ptr_right != right.number.end()) {
+      diff -= *ptr_right;
+      ++ptr_right;
+    }
+    if (diff < 0) {
+      *(ptr_left - 1) = (diff + 1000000000) % 1000000000;
+      diff = -1;
+    } else {
+      *(ptr_left - 1) = diff % 1000000000;
+      diff /= 1000000000;
+    }
+  }
+  if (diff < 0) {
+    *this = Bigint(1).add_zeroes(9 * number.size()) - *this;
+    positive = false;
+  }
+  while (!number.empty() && number.back() == 0) {
+    number.pop_back();
+  }
 
-	return *this;
+  return *this;
 }
 
-Bigint Bigint::operator-(int64_t const& b) const {
-	Bigint c = *this;
-	c -= b;
+Bigint Bigint::operator-(int64_t const &value) const {
+  Bigint c = *this;
+  c -= value;
 
-	return c;
+  return c;
 }
 
-Bigint& Bigint::operator-=(int64_t b) {
-	if (b == 0) {
-		return *this;
-	}
-	if (!positive || b < 0) {
-		return *this += -b;
-	}
+Bigint &Bigint::operator-=(int64_t value) {
+  if (value == 0) {
+    return *this;
+  }
+  if (!positive || value < 0) {
+    return *this += -value;
+  }
 
-	auto it1 = number.begin();
-	int64_t dif = 0;
+  int32_t *ptr = number.begin();
+  int64_t diff = 0;
 
-	while (it1 != number.end() || b != 0) {
-		if (it1 != number.end()) {
-			dif += *it1;
-			++it1;
-		} else {
-			number.push_back(0);
-			it1 = number.end();
-		}
+  while (ptr != number.end() || value != 0) {
+    if (ptr != number.end()) {
+      diff += *ptr;
+      ++ptr;
+    } else {
+      number.push_back(0);
+      ptr = number.end();
+    }
 
-		dif -= b % 1000000000;
-		b /= 1000000000;
+    diff -= value % 1000000000;
+    value /= 1000000000;
 
-		if (dif < 0) {
-			*(it1 - 1) = (dif + 1000000000) % 1000000000;
-			dif = -1;
-		} else {
-			*(it1 - 1) = dif % 1000000000;
-			dif /= 1000000000;
-		}
-	}
-	if (dif < 0) {
-		*this = Bigint(1).addZeroes(9 * number.size()) - *this;
-		positive = false;
-	}
-	while (!number.empty() && number.back() == 0) {
-		number.pop_back();
-	}
+    if (diff < 0) {
+      *(ptr - 1) = static_cast<int32_t>((diff + 1000000000) % 1000000000);
+      diff = -1;
+    } else {
+      *(ptr - 1) = static_cast<int32_t>(diff % 1000000000);
+      diff /= 1000000000;
+    }
+  }
+  if (diff < 0) {
+    *this = Bigint(1).add_zeroes(9 * number.size()) - *this;
+    positive = false;
+  }
+  while (!number.empty() && number.back() == 0) {
+    number.pop_back();
+  }
 
-	return *this;
+  return *this;
 }
 
 Bigint Bigint::operator-() {
-	flipPositive();
-	return *this;
+  flip_sign();
+  return *this;
 }
 
-Bigint Bigint::operator*(Bigint const& b) const {
-	if (b.number.size() == 1) {
-		Bigint c(*this);
-        c *= b.positive ? b.number[0] : -b.number[0];
-        return c;
-	}
+Bigint Bigint::operator*(Bigint const &right) const {
+  if (right.number.size() == 1) {
+    Bigint left = *this;
+    left *= right.positive ? right.number[0] : -right.number[0];
+    return left;
+  }
 
-	Bigint c(0);
-	int64_t sum = 0;
+  Bigint result(0);
+  int64_t sum = 0;
 
-	c.number.reserve(number.size() + b.number.size());
+  result.number.reserve(number.size() + right.number.size());
 
-	int i = 0;
+  int32_t start = 0;
 
-	for (int it1 : number) {
-		auto ite = c.number.begin() + i;
-		for (int it2 : b.number) {
-			sum += static_cast<int64_t>(it1) * it2;
-			if (ite == c.number.end()) {
-				c.number.push_back(sum % 1000000000);
-				ite = c.number.end();
-			} else {
-				sum += *ite;
-				*ite = sum % 1000000000;
-				++ite;
-			}
-			sum /= 1000000000;
-		}
-		if (sum != 0) {
-			c.number.push_back(sum % 1000000000);
-			sum = 0;
-		}
-		++i;
-	}
+  for (int32_t val_left : number) {
+    int32_t *ptr_result = result.number.begin() + start;
+    for (int32_t it2 : right.number) {
+      sum += static_cast<int64_t>(val_left) * it2;
+      if (ptr_result == result.number.end()) {
+        result.number.push_back(sum % 1000000000);
+        ptr_result = result.number.end();
+      } else {
+        sum += *ptr_result;
+        *ptr_result = static_cast<int32_t>(sum % 1000000000);
+        ++ptr_result;
+      }
+      sum /= 1000000000;
+    }
+    if (sum != 0) {
+      result.number.push_back(sum % 1000000000);
+      sum = 0;
+    }
+    ++start;
+  }
 
-	c.positive = positive == b.positive;
+  result.positive = positive == right.positive;
 
-	return c;
+  return result;
 }
 
-Bigint& Bigint::operator*=(Bigint const& b) {
-	*this = *this * b;
+Bigint &Bigint::operator*=(Bigint const &right) {
+  *this = *this * right;
 
-	return *this;
+  return *this;
 }
 
-Bigint Bigint::operator*(int64_t b) const {
-	Bigint c = *this;
-	c *= b;
+Bigint Bigint::operator*(int64_t value) const {
+  Bigint c = *this;
+  c *= value;
 
-	return c;
+  return c;
 }
 
-Bigint& Bigint::operator*=(int64_t const& b1) {
-	if (b1 == 0) {
-		this->clear();
+Bigint &Bigint::operator*=(int64_t const &value) {
+  if (value == 0) {
+    clear();
 
-		return *this;
-	}
-	bool b1_sign = true;
-	int64_t b = b1;
+    return *this;
+  }
+  bool value_sign = true;
+  int64_t copy_value = value;
 
-	if (b1 < 0) {
-		b = -b;
-		b1_sign = false;
-	}
+  if (value < 0) {
+    copy_value = -copy_value;
+    value_sign = false;
+  }
 
-	if (b >= 1000000000000000000) {
-		*this = *this * Bigint(b1);
+  if (copy_value >= 1000000000000000000) {
+    *this = *this * Bigint(value);
 
-		return *this;
-	}
+    return *this;
+  }
 
-	positive = b1_sign == positive;
+  positive = value_sign == positive;
 
-	std::vector<int> answer;
-	answer.reserve(number.size());
+  SmallVector<int32_t> result;
+  result.reserve(number.size());
 
-	auto it = number.begin();
-	int64_t sum = 0;
+  int32_t *ptr_left = number.begin();
+  int64_t sum = 0;
 
-	int64_t lowB = b % 1000000000;
-	int64_t highB = b / 1000000000;
+  int64_t lowPart = copy_value % 1000000000;
+  int64_t highPart = copy_value / 1000000000;
 
-	while (it != number.end()) {
-		sum += lowB * (*it);
-		answer.push_back(sum % 1000000000);
-		sum /= 1000000000;
-		++it;
-	}
-	if (sum != 0) {
-		answer.push_back(sum);
-		sum = 0;
-	}
+  while (ptr_left != number.end()) {
+    sum += lowPart * (*ptr_left);
+    result.push_back(sum % 1000000000);
+    sum /= 1000000000;
+    ++ptr_left;
+  }
+  if (sum != 0) {
+    result.push_back(sum);
+    sum = 0;
+  }
 
-	if (highB != 0) {
-		it = number.begin();
+  if (highPart != 0) {
+    ptr_left = number.begin();
 
-		auto ite = answer.begin() + 1;
+    int32_t *ptr_result = result.begin() + 1;
 
-		while (it != number.end()) {
-			sum += highB * (*it);
-			if (ite == answer.end()) {
-				answer.push_back(sum % 1000000000);
-			} else {
-				*ite += sum % 1000000000;
-			}
-			sum /= 1000000000;
-			++it;
-			++ite;
-		}
-		if (sum != 0) {
-			answer.push_back(sum);
-		}
-	}
+    while (ptr_left != number.end()) {
+      sum += highPart * (*ptr_left);
+      if (ptr_result == result.end()) {
+        result.push_back(sum % 1000000000);
+      } else {
+        *ptr_result += static_cast<int32_t>(sum % 1000000000);
+      }
+      sum /= 1000000000;
+      ++ptr_left;
+      ++ptr_result;
+    }
+    if (sum != 0) {
+      result.push_back(sum);
+    }
+  }
 
-	number = std::move(answer);
+  number = std::move(result);
 
-	return *this;
+  return *this;
 }
 
-Bigint& Bigint::pow(unsigned int const& power) {
-	std::map<int, Bigint> lookup;
-	if (power % 2 == 0 && !positive) {
-		positive = true;
-	}
-	*this = pow(power, &lookup);
+Bigint &Bigint::pow(uint32_t const &power) {
+  std::map<int32_t, Bigint> lookup;
+  if (power % 2 == 0 && !positive) {
+    positive = true;
+  }
+  *this = pow(power, &lookup);
 
-	return *this;
+  return *this;
 }
 
-int Bigint::digits() const {
-	int segments = number.size();
+int32_t Bigint::digits() const {
+  int32_t segments = number.size();
 
-	if (segments == 0) {
-		return 1;
-	}
+  if (segments == 0) {
+    return 1;
+  }
 
-	return 9 * (segments - 1) + segmentLength(number.back());
+  return 9 * (segments - 1) + segment_length(number.back());
 }
 
-bool Bigint::isEven() {
-	if (number.empty()) {
-		return true;
-	}
+// TODO: Change to const
+bool Bigint::is_even() const {
+  if (number.empty()) {
+    return true;
+  }
 
-	return number[0] % 2 == 0;
+  return number[0] % 2 == 0;
 }
 
-bool Bigint::isNegative() const {
-	return !this->positive;
+bool Bigint::is_negative() const {
+  return !positive;
 }
 
-Bigint Bigint::getFragment(const Bigint& p, int size) {
-	auto it = p.number.end() - 1;
-	int log = static_cast<int>(std::log10(*it)) + 1;
+Bigint Bigint::get_fragment(const Bigint &bigint, int32_t which) {
+  int32_t *ptr = bigint.number.end() - 1;
+  const int32_t size_at_end = static_cast<int32_t>(std::log10(*ptr)) + 1;
 
-	if (p.number.size() == 1 || log >= size) {
-		return Bigint((*it / pow10.at(log - size)));
-	}
+  if (bigint.number.size() == 1 || size_at_end >= which) {
+    return Bigint((*ptr / POW10.at(size_at_end - which)));
+  }
 
-	if (p.digits() <= size) {
-		return Bigint(p);
-	}
+  if (bigint.digits() <= which) {
+    return Bigint(bigint);
+  }
 
-	size -= log;
-	--it;
+  which -= size_at_end;
+  --ptr;
 
-	int i = size / 9;
-	it -= i;
-	size -= i * 9;
+  int32_t idx = which / 9;
+  ptr -= idx;
+  which -= idx * 9;
 
-	int pow = pow10.at(9 - size);
-	int pow2 = 1000000000 / pow;
+  int32_t pow = POW10.at(9 - which);
+  int32_t pow2 = 1000000000 / pow;
 
-	Bigint ret((*it) / pow);
+  Bigint result((*ptr) / pow);
 
-	ret.number.reserve(std::distance(it, p.number.end()));
+  result.number.reserve(std::distance(ptr, bigint.number.end()));
 
-	++it;
+  ++ptr;
 
-	i = 0;
+  idx = 0;
 
-	for (; it < p.number.end(); ++it) {
-		ret.number.push_back((*it) / pow);
-		ret.number[i] += ((*it) % pow) * pow2;
-		i++;
-	}
+  for (; ptr < bigint.number.end(); ++ptr) {
+    result.number.push_back((*ptr) / pow);
+    result.number[idx] += ((*ptr) % pow) * pow2;
+    idx++;
+  }
 
-	if (ret.number.back() == 0) {
-		ret.number.pop_back();
-	}
+  if (result.number.back() == 0) {
+    result.number.pop_back();
+  }
 
-	return ret;
+  return result;
 }
 
-Bigint Bigint::operator/(Bigint q) {
-	if (q == Bigint()) {
-		throw std::invalid_argument("Divisor must be non zero");
-	}
+Bigint Bigint::operator/(Bigint right) {
+  if (right == Bigint()) {
+    throw std::invalid_argument("Divisor must be non zero");
+  }
 
-	Bigint p = *this;
+  Bigint left = *this;
 
-	positive = positive == q.positive;
+  positive = positive == right.positive;
 
-	p.positive = true;
-	q.positive = true;
+  left.positive = true;
+  right.positive = true;
 
-	if (p < q) {
-		this->clear();
+  if (left < right) {
+    clear();
 
-		return *this;
-	}
-	if (number.size() == 1) {
-		number[0] = number.at(0) / q.number.at(0);
+    return *this;
+  }
+  if (number.size() == 1) {
+    number[0] = number[0] / right.number[0];
 
-		return *this;
-	}
+    return *this;
+  }
 
-	Bigint sum_quotient;
-	Bigint sub_p;
-	Bigint tmpx1;
-	unsigned int tmp_quotient = 0;
+  Bigint sum_quotient;
+  Bigint frag_left;
+  Bigint temp;
+  uint32_t temp_quotient = 0;
 
-	const std::array<Bigint, 4> look_up = { q, q * 2, q * 4, q * 8 };
+  const std::array<Bigint, 4> look_up = { right, right * 2, right * 4, right * 8 };
 
-	const std::array<int, 4> look_up_digits = {
-		look_up[0].digits(),
-		look_up[1].digits(),
-		look_up[2].digits(),
-		look_up[3].digits()
-	};
+  const std::array<int32_t, 4> look_up_digits = {
+    look_up[0].digits(),
+    look_up[1].digits(),
+    look_up[2].digits(),
+    look_up[3].digits()
+  };
 
-	while (true) {
-		const int digitsP = p.digits();
-		int digitsQ = look_up_digits[3];
+  while (true) {
+    const int32_t digits_left = left.digits();
+    int32_t digits_right = look_up_digits[3];
 
-		if (digitsP - look_up_digits[0] < 0) {
-			sum_quotient.positive = positive;
-			return sum_quotient;
-		}
-
-		if (digitsP - digitsQ < 0) {
-			sub_p = getFragment(p, look_up_digits[0]);
-		} else {
-			sub_p = getFragment(p, digitsQ);
-		}
-
-		for (unsigned int i = 3; i >= 0; i--) {
-			if (sub_p >= look_up.at(i)) {
-				tmpx1 = look_up.at(i);
-				digitsQ = look_up_digits.at(i);
-				tmp_quotient = 1U << i;
-				break;
-			}
-			if (i == 0) {
-				sum_quotient.positive = positive;
-				return sum_quotient;
-			}
-		}
-
-		const int k = digitsP - look_up_digits[3] - look_up_digits[3] + digitsQ;
-
-		if (k > 0) {
-			sum_quotient = sum_quotient + Bigint(tmp_quotient).addZeroes(k);
-			p = p - tmpx1.addZeroes(k);
-		} else {
-			sum_quotient = sum_quotient + tmp_quotient;
-			p = p - tmpx1;
-		}
-	}
-}
-
-Bigint& Bigint::operator/=(Bigint const& q) {
-	*this = *this / q;
-
-	return *this;
-}
-
-int64_t Bigint::operator%(int64_t const& divisor) const {
-	if(number.empty()) {
-		return 0;
-	}
-	int64_t remains = 0;
-    const size_t s = number.size() - 1;
-
-	for (size_t i = 0; i < number.size(); i++) {
-		remains = (remains + number[s - i]) % divisor;
-		if (i != s) {
-			remains *= 1000000000;
-			remains %= divisor;
-		}
-	}
-
-	return positive ? remains : -remains;
-}
-
-bool Bigint::operator<(const Bigint& b) const {
-	return compare(b) == -1;
-}
-
-bool Bigint::operator>(const Bigint& b) const {
-	return compare(b) == 1;
-}
-
-bool Bigint::operator<=(const Bigint& b) const {
-	return compare(b) != 1;
-}
-
-bool Bigint::operator>=(const Bigint& b) const {
-	return compare(b) != -1;
-}
-
-bool Bigint::operator==(const Bigint& b) const {
-	return compare(b) == 0;
-}
-
-bool Bigint::operator!=(const Bigint& b) const {
-	return compare(b) != 0;
-}
-
-Bigint& Bigint::operator=(const std::string& a) {
-	Bigint tmp(a);
-	number = std::move(tmp.number);
-	positive = tmp.positive;
-
-	return *this;
-}
-
-int Bigint::operator[](int const& b) const {
-	const int size = this->digits();
-
-	if (b >= size) {
-		throw std::out_of_range("Number out of bounds");
-	}
-
-	if (b == 0 && number.back() < 10) {
-		return number.back();
-	}
-
-	const int sizeAtBack = static_cast<int>(std::log10(number.back())) + 1;
-
-	if (sizeAtBack > b) {
-		return number.back() / pow10.at(sizeAtBack - b) % 10;
-	}
-
-	const int f = b - sizeAtBack;
-
-    const int num = number.at(number.size() - 2 - (f / 9));
-    const int numSize = segmentLength(num);
-
-    if (numSize < 9) {
-        return num / pow10.at(f % 9 + (9 - numSize)) % 10;
+    if (digits_left - look_up_digits[0] < 0) {
+      sum_quotient.positive = positive;
+      return sum_quotient;
     }
 
-	return num / pow10.at(numSize - 1 - f % 9) % 10;
+    if (digits_left - digits_right < 0) {
+      frag_left = get_fragment(left, look_up_digits[0]);
+    } else {
+      frag_left = get_fragment(left, digits_right);
+    }
+
+    for (uint8_t i = 3; i >= 0; i--) {
+      if (frag_left >= look_up.at(i)) {
+        temp = look_up.at(i);
+        digits_right = look_up_digits.at(i);
+        temp_quotient = 1U << i;
+        break;
+      }
+      if (i == 0) {
+        sum_quotient.positive = positive;
+        return sum_quotient;
+      }
+    }
+
+    const int32_t number_of_zeroes = digits_left - look_up_digits[3] - look_up_digits[3] + digits_right;
+
+    if (number_of_zeroes > 0) {
+      sum_quotient = sum_quotient + Bigint(temp_quotient).add_zeroes(number_of_zeroes);
+      left = left - temp.add_zeroes(number_of_zeroes);
+    } else {
+      sum_quotient = sum_quotient + temp_quotient;
+      left = left - temp;
+    }
+  }
+}
+
+Bigint &Bigint::operator/=(Bigint const &right) {
+  *this = *this / right;
+
+  return *this;
+}
+
+int64_t Bigint::operator%(int64_t const &value) const {
+  if (number.empty()) {
+    return 0;
+  }
+  int64_t remains = 0;
+  const size_t s = number.size() - 1;
+
+  for (size_t i = 0; i < number.size(); i++) {
+    remains = (remains + number[s - i]) % value;
+    if (i != s) {
+      remains *= 1000000000;
+      remains %= value;
+    }
+  }
+
+  return positive ? remains : -remains;
+}
+
+bool Bigint::operator<(const Bigint &other) const {
+  return compare(other) == -1;
+}
+
+bool Bigint::operator>(const Bigint &other) const {
+  return compare(other) == 1;
+}
+
+bool Bigint::operator<=(const Bigint &other) const {
+  return compare(other) != 1;
+}
+
+bool Bigint::operator>=(const Bigint &other) const {
+  return compare(other) != -1;
+}
+
+bool Bigint::operator==(const Bigint &other) const {
+  return compare(other) == 0;
+}
+
+bool Bigint::operator!=(const Bigint &other) const {
+  return compare(other) != 0;
+}
+
+Bigint &Bigint::operator=(const std::string &string) {
+  Bigint temp(string);
+  number = std::move(temp.number);
+  positive = temp.positive;
+
+  return *this;
+}
+
+int32_t Bigint::operator[](int32_t const &which) const {
+  const int32_t size = digits();
+
+  if (which >= size) {
+    throw std::out_of_range("Number out of bounds");
+  }
+
+  if (which == 0 && number.back() < 10) {
+    return number.back();
+  }
+
+  const int32_t size_at_back = static_cast<int32_t>(std::log10(number.back())) + 1;
+
+  if (size_at_back > which) {
+    return number.back() / POW10.at(size_at_back - which) % 10;
+  }
+
+  const int32_t segment = which - size_at_back;
+
+  const int32_t num = number[number.size() - 2 - (segment / 9)];
+  const int32_t num_length = segment_length(num);
+
+  if (num_length < 9) {
+    return num / POW10.at(segment % 9 + (9 - num_length)) % 10;
+  }
+
+  return num / POW10.at(num_length - 1 - segment % 9) % 10;
 }
 
 void Bigint::clear() {
-	number.clear();
-	positive = true;
+  number.clear();
+  positive = true;
 }
 
-Bigint& Bigint::abs() {
-	positive = true;
+Bigint &Bigint::abs() {
+  positive = true;
 
-	return *this;
+  return *this;
 }
 
-std::string Bigint::toString() const {
-	std::ostringstream stream;
-	stream << *this;
+std::string Bigint::to_string() const {
+  std::ostringstream stream;
+  stream << *this;
 
-	return stream.str();
+  return stream.str();
 }
 
 Bigint Bigint::clone() {
-	return Bigint(*this);
+  return Bigint(*this);
 }
 
-constexpr int Bigint::segmentLength(int segment) {
-	if (segment == 0) {
-		return 1;
-	}
+constexpr int32_t Bigint::segment_length(int32_t segment) {
+  if (segment == 0) {
+    return 1;
+  }
 
-	return static_cast<int>(std::log10(segment)) + 1;
+  return static_cast<int32_t>(std::log10(segment)) + 1;
 }
 
-std::istream& operator>>(std::istream& in, Bigint& a) {
-	std::string str;
-	in >> str;
+std::istream &operator>>(std::istream &stream, Bigint &bigint) {
+  std::string string;
+  stream >> string;
 
-	a = Bigint(str);
+  bigint = Bigint(string);
 
-	return in;
+  return stream;
 }
 
-std::ostream& operator<<(std::ostream& out, Bigint const& a) {
-	if (a.number.empty()) {
-		return out << '0';
-	}
+std::ostream &operator<<(std::ostream &stream, Bigint const &bigint) {
+  if (bigint.number.empty()) {
+    return stream << '0';
+  }
 
-	int64_t i = a.number.size() - 1;
-	for (; i >= 0 && a.number[i] == 0; --i) {};
+  int64_t length = bigint.number.size() - 1;
+  for (; length >= 0 && bigint.number[length] == 0; --length) {};
 
-	if (i == -1) {
-		return out << '0';
-	}
-	if (!a.positive) {
-		out << '-';
-	}
+  if (length == -1) {
+    return stream << '0';
+  }
+  if (!bigint.positive) {
+    stream << '-';
+  }
 
-	auto it = a.number.rbegin() + (a.number.size() - i - 1);
+  int32_t *ptr = bigint.number.end() - bigint.number.size() + length;
 
-	out << *it++;
+  stream << *ptr--;
 
-	for (; it != a.number.rend(); ++it) {
-		for (int i = 0, len = a.segmentLength(*it); i < 9 - len; ++i) {
-			out << '0';
-		}
-		if (*it != 0) {
-			out << *it;
-		}
-	}
+  for (; ptr != bigint.number.begin() - 1; --ptr) {
+    for (int32_t idx = 0, segment = bigint.segment_length(*ptr); idx < 9 - segment; ++idx) {
+      stream << '0';
+    }
+    if (*ptr != 0) {
+      stream << *ptr;
+    }
+  }
 
-	return out;
+  return stream;
 }
 
-Bigint Bigint::pow(unsigned int const& power, std::map<int, Bigint>* lookup) {
-	if (power == 1) {
-		return *this;
-	}
-	if (power == 0) {
-		this->clear();
-		number.push_back(1);
+Bigint Bigint::pow(uint32_t const &power, std::map<int32_t, Bigint> *lookup) {
+  if (power == 1) {
+    return *this;
+  }
+  if (power == 0) {
+    clear();
+    number.push_back(1);
 
-		return *this;
-	}
+    return *this;
+  }
 
-	if (lookup->count(power) != 0) {
-		return lookup->at(power);
-	}
+  if (lookup->count(power) != 0) {
+    return lookup->at(power);
+  }
 
-	unsigned int closestPower = 1;
-	while (closestPower < power) {
-		closestPower <<= 1U;
-	}
-	closestPower >>= 1U;
+  uint32_t closest_power = 1;
+  while (closest_power < power) {
+    closest_power <<= 1U;
+  }
+  closest_power >>= 1U;
 
-	if (power == closestPower) {
-		Bigint doub = pow(power / 2, lookup);
-		lookup->emplace(std::pair<int, Bigint>(power, doub * doub));
-	} else {
-		lookup->emplace(std::pair<int, Bigint>(power, pow(closestPower, lookup) * pow(power - closestPower, lookup)));
-	}
+  if (power == closest_power) {
+    Bigint half = pow(power / 2, lookup);
+    lookup->emplace(std::pair<int32_t, Bigint>(power, half * half));
+  } else {
+    lookup->emplace(std::pair<int32_t, Bigint>(power, pow(closest_power, lookup) * pow(power - closest_power, lookup)));
+  }
 
-	return lookup->at(power);
+  return lookup->at(power);
 }
 
-int Bigint::compare(const Bigint& a) const {
-	if (a.number.empty()) {
-		if (number.empty()) {
-			return 0;
-		}
-		if (number.size() == 1 && number[0] == 0) {
-			return 0;
-		}
-	}
-	if (number.empty()) {
-		if (a.number.size() == 1 && a.number[0] == 0) {
-			return 0;
-		}
-	}
+int8_t Bigint::compare(const Bigint &right) const {
+  if (right.number.empty()) {
+    if (number.empty()) {
+      return 0;
+    }
+    if (number.size() == 1 && number[0] == 0) {
+      return 0;
+    }
+  }
+  if (number.empty()) {
+    if (right.number.size() == 1 && right.number[0] == 0) {
+      return 0;
+    }
+  }
 
-	if (positive && !a.positive) {
-		return 1;
-	}
-	if (!positive && a.positive) {
-		return -1;
-	}
+  if (positive && !right.positive) {
+    return 1;
+  }
+  if (!positive && right.positive) {
+    return -1;
+  }
 
-	int check = 1;
-	if (!positive && !a.positive) {
-		check = -1;
-	}
+  int32_t signs = 1;
+  if (!positive && !right.positive) {
+    signs = -1;
+  }
 
-	if (number.size() < a.number.size()) {
-		return -1 * check;
-	}
-	if (number.size() > a.number.size()) {
-		return check;
-	}
+  if (number.size() < right.number.size()) {
+    return -1 * signs;
+  }
+  if (number.size() > right.number.size()) {
+    return signs;
+  }
 
-	for (int i = number.size(); i > 0; --i) {
-		if (number[i - 1] < a.number[i - 1]) {
-			return -1 * check;
-		}
-		if (number[i - 1] > a.number[i - 1]) {
-			return check;
-		}
-	}
+  for (int32_t idx = number.size(); idx > 0; --idx) {
+    if (number[idx - 1] < right.number[idx - 1]) {
+      return -1 * signs;
+    }
+    if (number[idx - 1] > right.number[idx - 1]) {
+      return signs;
+    }
+  }
 
-	return 0;
+  return 0;
 }
 
-constexpr void Bigint::flipPositive() const {
-	this->positive = !this->positive;
+constexpr void Bigint::flip_sign() const {
+  positive = !positive;
 }
 
-Bigint& Bigint::addZeroes(unsigned int num) {
-	if (num == 0) {
-		return *this;
-	}
+Bigint &Bigint::add_zeroes(uint32_t amount) {
+  if (amount == 0) {
+    return *this;
+  }
 
-	const int64_t ten = pow10.at(num % 9);
+  const int64_t power_of_ten = POW10.at(amount % 9);
 
-	if (ten != 1) {
-		int acum = 0;
-		for (auto& it : number) {
-			int64_t mul = ten * it;
-			it = static_cast<int>((mul + acum) % 1000000000);
-			acum = static_cast<int>(mul / 1000000000);
-		}
-		if (acum != 0) {
-			number.push_back(acum);
-		}
-	}
+  if (power_of_ten != 1) {
+    int32_t accumulator = 0;
+    for (int32_t &ptr : number) {
+      int64_t mul = power_of_ten * ptr;
+      ptr = static_cast<int32_t>((mul + accumulator) % 1000000000);
+      accumulator = static_cast<int32_t>(mul / 1000000000);
+    }
+    if (accumulator != 0) {
+      number.push_back(accumulator);
+    }
+  }
 
-	if (num / 9 > 0) {
-		std::reverse(number.begin(), number.end());
+  if (amount / 9 > 0) {
+    std::reverse(number.begin(), number.end());
 
-		number.resize(number.size() + num / 9, 0);
+    number.resize(number.size() + amount / 9, 0);
 
-		std::reverse(number.begin(), number.end());
-	}
+    std::reverse(number.begin(), number.end());
+  }
 
-	return *this;
+  return *this;
 }
 
-std::string toString(Bigint const& value) {
-	std::ostringstream stream;
-	stream << value;
+std::string to_string(Bigint const &bigint) {
+  std::ostringstream stream;
+  stream << bigint;
 
-	return stream.str();
+  return stream.str();
 }
 
-}
+}// namespace BigMath
