@@ -1,4 +1,4 @@
-find_program(CLANG_TIDY_COMMAND NAMES "clang-tidy" "clang-tidy-6.0" "clang-tidy-5.0" "clang-tidy-4.0"
+find_program(CLANG_TIDY_COMMAND NAMES "clang-tidy" "clang-tidy-10"
   DOC "Path to clang-tidy executable")
 if(NOT CLANG_TIDY_COMMAND)
     message(FATAL_ERROR "CMake_RUN_CLANG_TOOLS is ON but clang-tidy is not found!")
@@ -14,7 +14,7 @@ else()
   )
 endif()
 
-find_program(CLANG_FORMAT NAMES clang-format clang-format-6.0)
+find_program(CLANG_FORMAT NAMES "clang-format" "clang-format-10")
 if(NOT CLANG_FORMAT)
   message(FATAL_ERROR "CMake_RUN_CLANG_TOOLS is ON but clang-format is not found!")
 else()

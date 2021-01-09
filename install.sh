@@ -8,6 +8,7 @@ sudo apt-get install -y clang-format-10
 sudo update-alternatives --install /usr/bin/clang clang /usr/bin/clang-10 100
 sudo update-alternatives --install /usr/bin/clang-tidy clang-tidy /usr/bin/clang-tidy-10 100
 sudo update-alternatives --install /usr/bin/clang-format clang-format /usr/bin/clang-format-10 100
+sudo update-alternatives --install /usr/bin/clang-format-6.0 clang-format-6.0 /usr/bin/clang-format-10 100
 
 clang --version
 clang-tidy --version
