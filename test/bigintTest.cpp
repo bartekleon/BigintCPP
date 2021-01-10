@@ -229,7 +229,3 @@ TEST(AddZeroes, AddZeroes) {
   EXPECT_TRUE(Bigint(34331231).add_zeroes(0) == Bigint(34331231));
   EXPECT_TRUE(Bigint(34331231).add_zeroes(5) == Bigint(3433123100000));
 }
-
-TEST(AddZeroes, AddZeroes) {
-	EXPECT_TRUE(Bigint(34331231).addZeroes(0) == Bigint(34331231));
-}
