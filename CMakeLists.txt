@@ -1,13 +1,44 @@
 cmake_minimum_required(VERSION 3.17)
-set(CMAKE_CXX_STANDARD 17)
+
 set(PROJECT_NAME Bigint)
 project(${PROJECT_NAME})
 
+# Require C++17.
+# Change this value to require other C++ standards (14, 17, etc.)
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED)
+
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)
+
 include_directories(include)
-add_subdirectory(src)
 
-file(GLOB TEST_FILES ${PROJECT_SOURCE_DIR}/test/*.cpp)
+# Use globbing to find source files.
+# Any source files added to include/ or src/ will automatically be added to the project.
+file(GLOB_RECURSE INCLUDE_FILES ${CMAKE_SOURCE_DIR}/include/*.h)
+file(GLOB_RECURSE SOURCE_FILES ${CMAKE_SOURCE_DIR}/src/*.cpp)
+file(GLOB_RECURSE TEST_FILES ${PROJECT_SOURCE_DIR}/test/*.cpp)
 
-target_link_libraries(${PROJECT_NAME}_lib)
-add_subdirectory(googletest-release-1.8.0)
-add_subdirectory(test)
+if(MSVC)
+  add_compile_options(/W3 /WX)
+else()
+  add_compile_options(-Wall -pedantic)
+endif()
+
+add_library(${PROJECT_NAME} ${SOURCE_FILES})
+# If external libraries are needed, use find_library() and target_link_libraries()
+# to dynamically link them to your executable. Generally, you'll want to install
+# them onto the host using your OS's package manager.
+# Example:
+#   find_library(LIB_FMT fmt)
+#   target_link_libraries(${PROJECT_NAME} ${LIB_FMT})
+
+option(BUILD_TESTS "Build tests, run them and check coverage" OFF)
+if(BUILD_TESTS)
+  include(Test)
+endif()
+
+option(RUN_CLANG_TOOLS "Enable Clang tooling" OFF)
+if(RUN_CLANG_TOOLS)
+  include(ClangTools)
+endif()
