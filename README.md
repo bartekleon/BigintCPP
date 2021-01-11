@@ -27,6 +27,7 @@
 *  [to_string](#to_string)
 *  [clone](#clone)
 *  [add_zeroes](#add_zeroes)
+*  [remove_trailing](#remove_trailing)
 
 [Functions](#functions)
 

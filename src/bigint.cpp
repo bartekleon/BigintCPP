@@ -791,7 +791,7 @@ Bigint &Bigint::remove_trailing(uint32_t amount) {
   if (amount == 0) {
     return *this;
   }
-  if(amount > digits()) {
+  if (amount >= static_cast<uint32_t>(digits())) {
     clear();
     return *this;
   }
@@ -810,7 +810,7 @@ Bigint &Bigint::remove_trailing(uint32_t amount) {
     }
   }
 
-  for(uint32_t to_remove = 0; to_remove < amount / 9; to_remove++) {
+  for (uint32_t to_remove = 0; to_remove < amount / 9; to_remove++) {
     number.pop_back();
   }
 
