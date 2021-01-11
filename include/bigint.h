@@ -32,32 +32,32 @@ public:
   Bigint(std::string_view string);
 
   // Adding
-  Bigint operator+(Bigint const &right) const;
-  Bigint &operator+=(Bigint const &right);
-  Bigint operator+(int64_t const &value) const;
+  Bigint operator+(const Bigint &right) const;
+  Bigint &operator+=(const Bigint &right);
+  Bigint operator+(const int64_t &value) const;
   Bigint &operator+=(int64_t value);
 
   // Subtraction
-  Bigint operator-(Bigint const &right) const;
-  Bigint &operator-=(Bigint const &right);
-  Bigint operator-(int64_t const &value) const;
+  Bigint operator-(const Bigint &right) const;
+  Bigint &operator-=(const Bigint &right);
+  Bigint operator-(const int64_t &value) const;
   Bigint &operator-=(int64_t value);
 
   // Unary minus
   Bigint operator-();
 
   // Multiplication
-  Bigint operator*(Bigint const &right) const;
-  Bigint &operator*=(Bigint const &right);
+  Bigint operator*(const Bigint &right) const;
+  Bigint &operator*=(const Bigint &right);
   Bigint operator*(int64_t value) const;
-  Bigint &operator*=(int64_t const &value);
+  Bigint &operator*=(const int64_t &value);
 
   // Division
   Bigint operator/(Bigint right);
-  Bigint &operator/=(Bigint const &right);
+  Bigint &operator/=(const Bigint &right);
 
   // Modulo
-  [[nodiscard]] int64_t operator%(int64_t const &value) const;
+  [[nodiscard]] int64_t operator%(const int64_t &value) const;
 
   // Comparison
   [[nodiscard]] bool operator<(const Bigint &other) const;
@@ -73,11 +73,11 @@ public:
   Bigint &operator=(Bigint &&other) = default;
 
   // Access
-  [[nodiscard]] int32_t operator[](int32_t const &which) const;
+  [[nodiscard]] int32_t operator[](const int32_t &which) const;
 
   // Input & Output
   friend std::istream &operator>>(std::istream &stream, Bigint &bigint);
-  friend std::ostream &operator<<(std::ostream &stream, Bigint const &bigint);
+  friend std::ostream &operator<<(std::ostream &stream, const Bigint &bigint);
 
   // Helpers
   void clear();
@@ -86,22 +86,22 @@ public:
   [[nodiscard]] int32_t digits() const;
   [[nodiscard]] bool is_even() const;
   [[nodiscard]] bool is_negative() const;
-  Bigint clone();
-  constexpr void flip_sign() const;
+  Bigint clone() const;
+  void flip_sign() const;
 
   Bigint &add_zeroes(uint32_t amount);
 
   // Power
-  Bigint &pow(uint32_t const &power);
+  Bigint &pow(const uint32_t &power);
 
+  [[nodiscard]] int8_t compare(const Bigint &right) const;// 0 a == b, -1 a < b, 1 a > b
 private:
   [[nodiscard]] constexpr static int32_t segment_length(int32_t segment);
-  [[nodiscard]] Bigint pow(uint32_t const &power, std::map<int32_t, Bigint> *lookup);
-  [[nodiscard]] int8_t compare(Bigint const &right) const;// 0 a == b, -1 a < b, 1 a > b
+  [[nodiscard]] Bigint pow(const uint32_t &power, std::map<int32_t, Bigint> *lookup);
   [[nodiscard]] static Bigint get_fragment(const Bigint &bigint, int32_t which);
 };
 
-std::string to_string(Bigint const &bigint);
+std::string to_string(const Bigint &bigint);
 
 }// namespace BigMath
 
