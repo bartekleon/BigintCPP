@@ -189,12 +189,23 @@ cout << a == b // true
 ```
 
 ## add_zeroes()
-Multiples number by pow(10, n)
+Multiplies number by pow(10, n) - faster than a*10^n
 ```C++
 Bigint a = 455897864531248;
 a.addZeroes(4);
 cout << a // 4558978645312480000
 cout << a.addZeroes(3) // 4558978645312480000000
+```
+
+## remove_trailing()
+Divides number by pow(10, n) - faster than a/10^n
+```C++
+Bigint a = 3433123100000;
+a.remove_trailing(4);
+cout << a // 34331231
+
+Bigint b = "3433123156364113314123"
+cout << a.remove_trailing(11) // 34331231563
 ```
 
 # Functions

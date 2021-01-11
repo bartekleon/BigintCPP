@@ -90,6 +90,7 @@ public:
   void flip_sign() const;
 
   Bigint &add_zeroes(uint32_t amount);
+  Bigint &remove_trailing(uint32_t amount);
 
   // Power
   Bigint &pow(const uint32_t &power);
