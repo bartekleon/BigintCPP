@@ -787,6 +787,42 @@ Bigint &Bigint::add_zeroes(uint32_t amount) {
   return *this;
 }
 
+Bigint &Bigint::remove_trailing(uint32_t amount) {
+  if (amount == 0) {
+    return *this;
+  }
+  if (amount >= static_cast<uint32_t>(digits())) {
+    clear();
+    return *this;
+  }
+
+  std::reverse(number.begin(), number.end());
+
+  const int32_t power_of_ten = POW10.at(amount % 9);
+  const int32_t power_of_ten_complement = POW10.at(9 - amount % 9);
+
+  if (power_of_ten != 1) {
+    int32_t accumulator = 0;
+    for (int32_t &ptr : number) {
+      int32_t temp = ptr % power_of_ten;
+      ptr = power_of_ten_complement * accumulator + ptr / power_of_ten;
+      accumulator = temp;
+    }
+  }
+
+  for (uint32_t to_remove = 0; to_remove < amount / 9; to_remove++) {
+    number.pop_back();
+  }
+
+  std::reverse(number.begin(), number.end());
+
+  while (!number.empty() && number.back() == 0) {
+    number.pop_back();
+  }
+
+  return *this;
+}
+
 std::string to_string(const Bigint &bigint) {
   std::ostringstream stream;
   stream << bigint;

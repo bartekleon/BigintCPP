@@ -228,4 +228,11 @@ TEST(Digits, Digits) {
 TEST(AddZeroes, AddZeroes) {
   EXPECT_TRUE(Bigint(34331231).add_zeroes(0) == Bigint(34331231));
   EXPECT_TRUE(Bigint(34331231).add_zeroes(5) == Bigint(3433123100000));
+  EXPECT_TRUE(Bigint(34331231).add_zeroes(11) == Bigint("3433123100000000000"));
+}
+
+TEST(RemoveTrailing, RemoveTrailing) {
+  EXPECT_TRUE(Bigint(34331231).remove_trailing(0) == Bigint(34331231));
+  EXPECT_TRUE(Bigint(3433123100000).remove_trailing(5) == Bigint(34331231));
+  EXPECT_TRUE(Bigint("3433123156364113314123").remove_trailing(11) == Bigint(34331231563));
 }
