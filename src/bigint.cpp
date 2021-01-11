@@ -35,10 +35,9 @@ Bigint::Bigint(std::string_view string) {
     int32_t num = 0;
 
     for (int32_t idx = size - 1; idx >= 0 && idx >= size - 9; --idx) {
-      if (string[idx] < '0' || string[idx] > '9') {
-        break;
+      if (string[idx] >= '0' && string[idx] <= '9') {
+        num += (string[idx] - '0') * POW10.at(length);
       }
-      num += (string[idx] - '0') * POW10.at(length);
       ++length;
     }
     number.push_back(num);
@@ -46,14 +45,14 @@ Bigint::Bigint(std::string_view string) {
   }
 }
 
-Bigint Bigint::operator+(Bigint const &right) const {
+Bigint Bigint::operator+(const Bigint &right) const {
   Bigint c = *this;
   c += right;
 
   return c;
 }
 
-Bigint &Bigint::operator+=(Bigint const &right) {
+Bigint &Bigint::operator+=(const Bigint &right) {
   if (positive && !right.positive) {
     right.flip_sign();
 
@@ -95,7 +94,7 @@ Bigint &Bigint::operator+=(Bigint const &right) {
   return *this;
 }
 
-Bigint Bigint::operator+(int64_t const &value) const {
+Bigint Bigint::operator+(const int64_t &value) const {
   Bigint c = *this;
   c += value;
 
@@ -139,14 +138,14 @@ Bigint &Bigint::operator+=(int64_t value) {
   return *this;
 }
 
-Bigint Bigint::operator-(Bigint const &right) const {
+Bigint Bigint::operator-(const Bigint &right) const {
   Bigint c = *this;
   c -= right;
 
   return c;
 }
 
-Bigint &Bigint::operator-=(Bigint const &right) {
+Bigint &Bigint::operator-=(const Bigint &right) {
   if (Bigint() == right) {
     return *this;
   }
@@ -194,7 +193,7 @@ Bigint &Bigint::operator-=(Bigint const &right) {
   return *this;
 }
 
-Bigint Bigint::operator-(int64_t const &value) const {
+Bigint Bigint::operator-(const int64_t &value) const {
   Bigint c = *this;
   c -= value;
 
@@ -248,7 +247,7 @@ Bigint Bigint::operator-() {
   return *this;
 }
 
-Bigint Bigint::operator*(Bigint const &right) const {
+Bigint Bigint::operator*(const Bigint &right) const {
   if (right.number.size() == 1) {
     Bigint left = *this;
     left *= right.positive ? right.number[0] : -right.number[0];
@@ -288,7 +287,7 @@ Bigint Bigint::operator*(Bigint const &right) const {
   return result;
 }
 
-Bigint &Bigint::operator*=(Bigint const &right) {
+Bigint &Bigint::operator*=(const Bigint &right) {
   *this = *this * right;
 
   return *this;
@@ -301,7 +300,7 @@ Bigint Bigint::operator*(int64_t value) const {
   return c;
 }
 
-Bigint &Bigint::operator*=(int64_t const &value) {
+Bigint &Bigint::operator*=(const int64_t &value) {
   if (value == 0) {
     clear();
 
@@ -369,7 +368,7 @@ Bigint &Bigint::operator*=(int64_t const &value) {
   return *this;
 }
 
-Bigint &Bigint::pow(uint32_t const &power) {
+Bigint &Bigint::pow(const uint32_t &power) {
   std::map<int32_t, Bigint> lookup;
   if (power % 2 == 0 && !positive) {
     positive = true;
@@ -522,13 +521,13 @@ Bigint Bigint::operator/(Bigint right) {
   }
 }
 
-Bigint &Bigint::operator/=(Bigint const &right) {
+Bigint &Bigint::operator/=(const Bigint &right) {
   *this = *this / right;
 
   return *this;
 }
 
-int64_t Bigint::operator%(int64_t const &value) const {
+int64_t Bigint::operator%(const int64_t &value) const {
   if (number.empty()) {
     return 0;
   }
@@ -578,7 +577,7 @@ Bigint &Bigint::operator=(const std::string &string) {
   return *this;
 }
 
-int32_t Bigint::operator[](int32_t const &which) const {
+int32_t Bigint::operator[](const int32_t &which) const {
   const int32_t size = digits();
 
   if (which >= size) {
@@ -625,7 +624,7 @@ std::string Bigint::to_string() const {
   return stream.str();
 }
 
-Bigint Bigint::clone() {
+Bigint Bigint::clone() const {
   return Bigint(*this);
 }
 
@@ -646,7 +645,7 @@ std::istream &operator>>(std::istream &stream, Bigint &bigint) {
   return stream;
 }
 
-std::ostream &operator<<(std::ostream &stream, Bigint const &bigint) {
+std::ostream &operator<<(std::ostream &stream, const Bigint &bigint) {
   if (bigint.number.empty()) {
     return stream << '0';
   }
@@ -677,7 +676,7 @@ std::ostream &operator<<(std::ostream &stream, Bigint const &bigint) {
   return stream;
 }
 
-Bigint Bigint::pow(uint32_t const &power, std::map<int32_t, Bigint> *lookup) {
+Bigint Bigint::pow(const uint32_t &power, std::map<int32_t, Bigint> *lookup) {
   if (power == 1) {
     return *this;
   }
@@ -754,7 +753,7 @@ int8_t Bigint::compare(const Bigint &right) const {
   return 0;
 }
 
-constexpr void Bigint::flip_sign() const {
+void Bigint::flip_sign() const {
   positive = !positive;
 }
 
@@ -788,7 +787,7 @@ Bigint &Bigint::add_zeroes(uint32_t amount) {
   return *this;
 }
 
-std::string to_string(Bigint const &bigint) {
+std::string to_string(const Bigint &bigint) {
   std::ostringstream stream;
   stream << bigint;
 
