@@ -577,6 +577,20 @@ Bigint &Bigint::operator=(const std::string &string) {
   return *this;
 }
 
+int32_t Bigint::operator()(const int32_t &which) const {
+  const int32_t size = digits();
+
+  if (which >= size) {
+    throw std::out_of_range("Number out of bounds");
+  }
+
+  if (which == 0) {
+    return number[0] % 10;
+  }
+
+  return number[which / 9] / POW10.at(which % 9) % 10;
+}
+
 int32_t Bigint::operator[](const int32_t &which) const {
   const int32_t size = digits();
 

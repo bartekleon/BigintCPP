@@ -117,7 +117,10 @@ e = "23498523524";
 ```C++
 Bigint a = 159753;
 a.pow(15); //a^15, 1126510743106482...
-cout << a[3]; // 6 is the 4th digit
+cout << a[3]; // 6 is the 4th digit from the left
+
+Bigint b = 123456789;
+cout << b(2); // 7 is the 3th digit from the right
 ```
 
 ## Stream operators

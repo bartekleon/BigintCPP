@@ -74,6 +74,7 @@ public:
 
   // Access
   [[nodiscard]] int32_t operator[](const int32_t &which) const;
+  [[nodiscard]] int32_t operator()(const int32_t &which) const;
 
   // Input & Output
   friend std::istream &operator>>(std::istream &stream, Bigint &bigint);
