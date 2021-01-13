@@ -19,7 +19,7 @@ template<size_t T_size>
 }
 
 
-// FUNCTION TEMPLATE _Allocate_for_op_delete
+// FUNCTION TEMPLATE allocate_for_delete
 template<class T>
 T *allocate_for_delete(size_t Count) {
   // allocates space for _Count copies of _Ty, which will be freed with scalar delete
@@ -65,7 +65,7 @@ public:
     _size = right._size;
     _capacity = right._size;
 
-    grow(right._size, right._ptr, 1);
+    grow(right._capacity, right._ptr, 1);
   }
   SmallVector(SmallVector &&right) noexcept {
     init();
@@ -103,7 +103,7 @@ public:
       _size = right._size;
       _capacity = right._size;
 
-      grow(right._size, right._ptr, 1);
+      grow(right._capacity, right._ptr, 1);
     }
 
     return *this;
@@ -121,7 +121,7 @@ public:
         for (size_t Idx = 0; Idx < _size; ++Idx) {
           _temp[Idx] = _ptr[Idx];
         }
-        _ptr = nullptr;
+        delete _ptr;
         _ptr = std::move(_temp);
 
         _capacity = newsize;
@@ -147,7 +147,7 @@ public:
 
   void push_back(T val) {
     if (_size == _capacity) {
-      reserve(_capacity == 0 ? 8 : _capacity * 2);
+      reserve(_capacity <= 4 ? 8 : _capacity * 2);
     }
     _ptr[_size++] = val;
   }
@@ -166,6 +166,7 @@ public:
       for (size_t Idx = 0; Idx < _size; ++Idx) {
         _temp[Idx] = _ptr[Idx];
       }
+      delete _ptr;
       _ptr = _temp;
     }
   }
@@ -195,16 +196,18 @@ public:
   }
 
 private:
-  void grow(size_t newsize) {// allocate space for _Count elements and fill with default values
-    _ptr = allocate_for_delete<T>(newsize);
-    for (size_t Idx = 0; Idx < newsize; ++Idx) {
+  void grow(size_t new_capacity) {// allocate space for _Count elements and fill with default values
+    delete _ptr;
+    _ptr = allocate_for_delete<T>(new_capacity);
+    for (size_t Idx = 0; Idx < new_capacity; ++Idx) {
       _ptr[Idx] = 0;
     }
   }
 
-  void grow(size_t newsize, const T *ptr, size_t inc = 0) {
-    _ptr = allocate_for_delete<T>(newsize);
-    for (size_t Idx = 0; Idx < newsize; ++Idx, ptr += inc) {
+  void grow(size_t new_capacity, const T *ptr, size_t inc) {
+    delete _ptr;
+    _ptr = allocate_for_delete<T>(new_capacity);
+    for (size_t Idx = 0; Idx < new_capacity; ++Idx, ptr += inc) {
       _ptr[Idx] = *ptr;
     }
   }
