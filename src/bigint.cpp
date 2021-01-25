@@ -520,25 +520,17 @@ Bigint Bigint::operator/(const Bigint &right) const {
       get_fragment(left, frag_left, digits_right);
     }
 
-    if (frag_left >= look_up.at(3)) {
-      temp.number.copy(look_up.at(3).number);
-      digits_right = look_up_digits.at(3);
-      temp_quotient.number.push_back(8);
-    } else if (frag_left >= look_up.at(2)) {
-      temp.number.copy(look_up.at(2).number);
-      digits_right = look_up_digits.at(2);
-      temp_quotient.number.push_back(4);
-    } else if (frag_left >= look_up.at(1)) {
-      temp.number.copy(look_up.at(1).number);
-      digits_right = look_up_digits.at(1);
-      temp_quotient.number.push_back(2);
-    } else if (frag_left >= look_up.at(0)) {
-      temp.number.copy(look_up.at(0).number);
-      digits_right = look_up_digits.at(0);
-      temp_quotient.number.push_back(1);
-    } else {
-      sum_quotient.positive = new_positive;
-      return sum_quotient;
+    for (uint8_t i = 3;; i--) {
+      if (frag_left >= look_up.at(i)) {
+        temp.number.copy(look_up.at(i).number);
+        digits_right = look_up_digits.at(i);
+        temp_quotient.number.push_back(1U << i);
+        break;
+      }
+      if (i == 0) {
+        sum_quotient.positive = positive;
+        return sum_quotient;
+      }
     }
 
     const int32_t number_of_zeroes{ digits_left - look_up_digits[3] - look_up_digits[3] + digits_right };
