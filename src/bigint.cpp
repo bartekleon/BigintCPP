@@ -520,7 +520,7 @@ Bigint Bigint::operator/(const Bigint &right) const {
       get_fragment(left, frag_left, digits_right);
     }
 
-    for (uint8_t i = 3;; i--) {
+    for (uint8_t i{3};; i--) {
       if (frag_left >= look_up.at(i)) {
         temp.number.copy(look_up.at(i).number);
         digits_right = look_up_digits.at(i);
