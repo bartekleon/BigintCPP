@@ -66,8 +66,8 @@ public:
 
   // Allocation
   Bigint &operator=(const std::string &str) noexcept;
-  Bigint &operator=(const Bigint &other) noexcept = default;
-  Bigint &operator=(Bigint &&other) noexcept = default;
+  Bigint &operator=(const Bigint &other) = default;
+  Bigint &operator=(Bigint &&other) = default;
 
   // Access
   [[nodiscard]] int32_t operator[](const int32_t &which) const;
