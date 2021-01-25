@@ -80,7 +80,7 @@ public:
     delete _ptr;
   }
 
-  SmallVector &operator=(const SmallVector &right) noexcept {
+  SmallVector &operator=(const SmallVector &right) {
     if (this != std::addressof(right)) {
       _size = right._size;
       _capacity = right._size;
