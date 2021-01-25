@@ -1,8 +1,5 @@
 #pragma once
 
-#ifndef BIGINT_H_
-#define BIGINT_H_
-
 #include <algorithm>
 #include <array>
 #include <cmath>
@@ -19,7 +16,7 @@ namespace BigMath {
 class Bigint {
 private:
   SmallVector<int32_t> number;// max size of vector uint32_t
-  mutable bool positive = true;
+  bool positive{ true };
 
 public:
   // Constructors
@@ -34,43 +31,43 @@ public:
   // Adding
   Bigint operator+(const Bigint &right) const;
   Bigint &operator+=(const Bigint &right);
-  Bigint operator+(const int64_t &value) const;
+  Bigint operator+(int64_t value) const;
   Bigint &operator+=(int64_t value);
 
   // Subtraction
   Bigint operator-(const Bigint &right) const;
   Bigint &operator-=(const Bigint &right);
-  Bigint operator-(const int64_t &value) const;
+  Bigint operator-(int64_t value) const;
   Bigint &operator-=(int64_t value);
 
   // Unary minus
-  Bigint operator-();
+  Bigint operator-() noexcept;
 
   // Multiplication
   Bigint operator*(const Bigint &right) const;
   Bigint &operator*=(const Bigint &right);
   Bigint operator*(int64_t value) const;
-  Bigint &operator*=(const int64_t &value);
+  Bigint &operator*=(int64_t value);
 
   // Division
-  Bigint operator/(Bigint right);
+  Bigint operator/(const Bigint &right) const;
   Bigint &operator/=(const Bigint &right);
 
   // Modulo
   [[nodiscard]] int64_t operator%(const int64_t &value) const;
 
   // Comparison
-  [[nodiscard]] bool operator<(const Bigint &other) const;
-  [[nodiscard]] bool operator>(const Bigint &other) const;
-  [[nodiscard]] bool operator<=(const Bigint &other) const;
-  [[nodiscard]] bool operator>=(const Bigint &other) const;
-  [[nodiscard]] bool operator==(const Bigint &other) const;
-  [[nodiscard]] bool operator!=(const Bigint &other) const;
+  [[nodiscard]] bool operator<(const Bigint &other) const noexcept;
+  [[nodiscard]] bool operator>(const Bigint &other) const noexcept;
+  [[nodiscard]] bool operator<=(const Bigint &other) const noexcept;
+  [[nodiscard]] bool operator>=(const Bigint &other) const noexcept;
+  [[nodiscard]] bool operator==(const Bigint &other) const noexcept;
+  [[nodiscard]] bool operator!=(const Bigint &other) const noexcept;
 
   // Allocation
-  Bigint &operator=(const std::string &str);
-  Bigint &operator=(const Bigint &other) = default;
-  Bigint &operator=(Bigint &&other) = default;
+  Bigint &operator=(const std::string &str) noexcept;
+  Bigint &operator=(const Bigint &other) noexcept = default;
+  Bigint &operator=(Bigint &&other) noexcept = default;
 
   // Access
   [[nodiscard]] int32_t operator[](const int32_t &which) const;
@@ -81,30 +78,30 @@ public:
   friend std::ostream &operator<<(std::ostream &stream, const Bigint &bigint);
 
   // Helpers
-  void clear();
-  Bigint &abs();
+  void clear() noexcept;
+  Bigint &abs() noexcept;
   [[nodiscard]] std::string to_string() const;
-  [[nodiscard]] int32_t digits() const;
-  [[nodiscard]] bool is_even() const;
-  [[nodiscard]] bool is_negative() const;
-  Bigint clone() const;
-  void flip_sign() const;
+  [[nodiscard]] int32_t digits() const noexcept;
+  [[nodiscard]] bool is_even() const noexcept;
+  [[nodiscard]] bool is_negative() const noexcept;
+  [[nodiscard]] bool is_zero() const noexcept;
+  [[nodiscard]] Bigint clone() const noexcept;
 
-  Bigint &add_zeroes(uint32_t amount);
-  Bigint &remove_trailing(uint32_t amount);
+  Bigint &add_zeroes(uint64_t amount);
+  Bigint &remove_trailing(uint64_t amount);
 
   // Power
-  Bigint &pow(const uint32_t &power);
+  Bigint &pow(uint32_t power);
 
-  [[nodiscard]] int8_t compare(const Bigint &right) const;// 0 a == b, -1 a < b, 1 a > b
+  [[nodiscard]] int8_t compare(const Bigint &right) const noexcept;// 0 a == b, -1 a < b, 1 a > b
+  [[nodiscard]] int8_t compare(const Bigint &right, bool absolute) const noexcept;// 0 a == b, -1 a < b, 1 a > b
 private:
-  [[nodiscard]] constexpr static int32_t segment_length(int32_t segment);
-  [[nodiscard]] Bigint pow(const uint32_t &power, std::map<int32_t, Bigint> *lookup);
-  [[nodiscard]] static Bigint get_fragment(const Bigint &bigint, int32_t which);
+  [[nodiscard]] Bigint &absolute_addition(const Bigint &right);
+  [[nodiscard]] Bigint &absolute_subtraction(const Bigint &right);
+  [[nodiscard]] Bigint pow(uint32_t power, std::map<uint32_t, Bigint> *lookup);
+  static void get_fragment(const Bigint &bigint, Bigint &result, int32_t which);
 };
 
 std::string to_string(const Bigint &bigint);
 
 }// namespace BigMath
-
-#endif /* BIGINT_H_ */

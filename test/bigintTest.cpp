@@ -157,8 +157,8 @@ TEST(UnaryMinusTest, UnaryMinusTest) {
 }
 
 TEST(IsNegativeTests, IsNegativeTests) {
-  EXPECT_TRUE(Bigint(13).is_negative() == false);
-  EXPECT_TRUE(Bigint(-13).is_negative() == true);
+  EXPECT_FALSE(Bigint(13).is_negative());
+  EXPECT_TRUE(Bigint(-13).is_negative());
 }
 
 TEST(PowerTests, PowerTests) {
