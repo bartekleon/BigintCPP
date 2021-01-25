@@ -93,7 +93,7 @@ Bigint &Bigint::absolute_subtraction(const Bigint &right) {
   int32_t *ptr_right{ right.number.begin() };
   int32_t *ptr_right_end{ right.number.end() };
 
-  if(compare(right, true) == -1) {
+  if (compare(right, true) == -1) {
     const Bigint new_right = *this;
     ptr_right = new_right.number.begin();
     ptr_right_end = new_right.number.end();
@@ -212,7 +212,7 @@ Bigint &Bigint::operator-=(const Bigint &right) {
   if (right.is_zero()) {
     return *this;
   }
-  if(positive != right.positive) {
+  if (positive != right.positive) {
     return absolute_addition(right);
   }
 
@@ -274,7 +274,43 @@ Bigint Bigint::operator-() noexcept {
 }
 
 Bigint Bigint::operator*(const Bigint &right) const {
-  return Bigint(*this) *= right;
+  if (right.number.size() == 1) {
+    Bigint left{ *this };
+    left *= right.positive ? right.number[0] : -right.number[0];
+    return left;
+  }
+
+  Bigint result{ 0 };
+  int64_t sum{ 0 };
+
+  result.number.reserve(number.size() + right.number.size());
+
+  int32_t start{ 0 };
+
+  for (int32_t val_left : number) {
+    int32_t *ptr_result{ result.number.begin() + start };
+    for (int32_t it2 : right.number) {
+      sum += static_cast<int64_t>(val_left) * it2;
+      if (ptr_result == result.number.end()) {
+        result.number.push_back(sum % BLOCK);
+        ptr_result = result.number.end();
+      } else {
+        sum += *ptr_result;
+        *ptr_result = static_cast<int32_t>(sum % BLOCK);
+        ++ptr_result;
+      }
+      sum /= BLOCK;
+    }
+    if (sum != 0) {
+      result.number.push_back(sum % BLOCK);
+      sum = 0;
+    }
+    ++start;
+  }
+
+  result.positive = positive == right.positive;
+
+  return result;
 }
 
 Bigint &Bigint::operator*=(const Bigint &right) {
@@ -536,7 +572,7 @@ Bigint Bigint::operator/(const Bigint &right) const {
     const int32_t number_of_zeroes{ digits_left - look_up_digits[3] - look_up_digits[3] + digits_right };
 
     if (number_of_zeroes > 0) {
-      sum_quotient += Bigint(temp_quotient).add_zeroes(number_of_zeroes);
+      sum_quotient += temp_quotient.add_zeroes(number_of_zeroes);
       left -= temp.add_zeroes(number_of_zeroes);
     } else {
       sum_quotient += temp_quotient;
