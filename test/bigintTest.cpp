@@ -6,6 +6,9 @@
 #include "bigint.h"
 
 using BigMath::Bigint;
+namespace BigMath::Details {
+  constexpr int32_t segment_length(int32_t segment) noexcept;
+}// namespace Details
 
 TEST(ComparisonTests, ComparisonTests) {
   ASSERT_TRUE(Bigint(123) == Bigint(123));
@@ -112,6 +115,10 @@ TEST(MultiplicationTests, MultiplicationTests) {
 
   EXPECT_TRUE(a == Bigint(1599));
 
+  a *= Bigint(10);
+
+  EXPECT_TRUE(a == Bigint(15990));
+
   Bigint b("23498223123342898");
   b *= Bigint("92384723897592748924789234389");
 
@@ -171,8 +178,10 @@ TEST(PowerTests, PowerTests) {
 }
 
 TEST(Modulo, Modulo) {
+  EXPECT_TRUE(Bigint() % 13 == 0);
   EXPECT_TRUE(Bigint("239847892391") % 13 == 3);
   EXPECT_TRUE(Bigint("-239847892391") % 13 == -3);
+  EXPECT_THROW(Bigint("-239847892391") % 0, std::invalid_argument);
 }
 
 TEST(IsEven, IsEven) {
@@ -214,6 +223,8 @@ TEST(Streams, Streams) {
 }
 
 TEST(Access, Access) {
+  EXPECT_TRUE(Bigint(8)[0] == 8);
+  EXPECT_TRUE(Bigint(8123)[2] == 2);
   EXPECT_TRUE(Bigint("304839054389543804382543790782030318932382904234")[13] == 4);
   EXPECT_TRUE(Bigint("304839054389543804382543790782030318932382904234")[44] == 4);
   EXPECT_THROW(Bigint(1234)[4], std::out_of_range);
@@ -239,4 +250,12 @@ TEST(RemoveTrailing, RemoveTrailing) {
   EXPECT_TRUE(Bigint(34331231).remove_trailing(0) == Bigint(34331231));
   EXPECT_TRUE(Bigint(3433123100000).remove_trailing(5) == Bigint(34331231));
   EXPECT_TRUE(Bigint("3433123156364113314123").remove_trailing(11) == Bigint(34331231563));
+}
+
+TEST(Segment_length, Segment_length) {
+  EXPECT_TRUE(BigMath::Details::segment_length(0) == 1);
+}
+
+TEST(Rare_cases, Rare_cases) {
+  EXPECT_TRUE(Bigint("-").is_zero());
 }

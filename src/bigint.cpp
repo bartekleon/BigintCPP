@@ -589,7 +589,7 @@ int64_t Bigint::operator%(const int64_t &value) const {
   if (value == 0) {
     throw std::invalid_argument("Divisor must be non zero");
   }
-  if (number.empty()) {
+  if (is_zero()) {
     return 0;
   }
   int64_t remains{ 0 };
@@ -666,7 +666,7 @@ int32_t Bigint::operator[](const int32_t &which) const {
   const int32_t size_at_back{ static_cast<int32_t>(std::log10(number.back())) + 1 };
 
   if (size_at_back > which) {
-    return number.back() / POW10.at(size_at_back - which) % 10;
+    return (number.back() / POW10.at(size_at_back - 1 - which)) % 10;
   }
 
   const int32_t segment{ which - size_at_back };
