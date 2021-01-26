@@ -1,5 +1,5 @@
 ---
-Checks:          '*,-fuchsia-*,-google-*,-zircon-*,-abseil-*,-modernize-use-trailing-return-type,-llvm-*,-llvmlibc-*,-misc-no-recursion,-cppcoreguidelines-avoid-magic-numbers,-readability-magic-numbers,-hicpp-explicit-conversions,-bugprone-unhandled-self-assignment,-cert-oop54-cpp,-cppcoreguidelines-pro-bounds-pointer-arithmetic'
+Checks: '*,-fuchsia-overloaded-operator,-modernize-use-trailing-return-type,-llvmlibc-callee-namespace,-llvmlibc-implementation-in-namespace,-cppcoreguidelines-pro-bounds-pointer-arithmetic,-misc-no-recursion,-llvmlibc-restrict-system-libc-headers,-llvm-header-guard,-google-explicit-constructor,-hicpp-explicit-conversions,-fuchsia-default-arguments-calls,-cppcoreguidelines-avoid-magic-numbers,-readability-magic-numbers,-bugprone-unhandled-self-assignment,-cert-oop54-cpp,-google-runtime-references'
 WarningsAsErrors: '*'
 HeaderFilterRegex: '.*'
-FormatStyle:     none
+FormatStyle: none

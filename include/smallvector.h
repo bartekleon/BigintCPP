@@ -6,10 +6,10 @@ namespace BigMath {
 
 template<size_t T_size>
 [[nodiscard]] constexpr size_t get_size_of_n(const size_t count) {
-  constexpr bool overflow_is_possible = T_size > 1;
+  constexpr bool overflow_is_possible{ T_size > 1 };
 
   if constexpr (overflow_is_possible) {
-    constexpr size_t max_possible = static_cast<size_t>(-1) / T_size;
+    constexpr size_t max_possible{ static_cast<size_t>(-1) / T_size };
     if (count > max_possible) {
       throw std::out_of_range("bad array new length");// multiply overflow
     }
@@ -21,54 +21,34 @@ template<size_t T_size>
 
 // FUNCTION TEMPLATE allocate_for_delete
 template<class T>
-T *allocate_for_delete(size_t Count) {
-  // allocates space for _Count copies of _Ty, which will be freed with scalar delete
-  if (Count == 0) {
+T *allocate_for_delete(size_t count) {
+  // allocates space for count copies of T, which will be freed with scalar delete
+  if (count == 0) {
     return nullptr;
   }
 
-  const size_t Bytes = get_size_of_n<sizeof(T)>(Count);
-#ifdef __cpp_aligned_new
-  constexpr bool Extended_alignment = alignof(T) > __STDCPP_DEFAULT_NEW_ALIGNMENT__;
-  if constexpr (Extended_alignment) {
-    return static_cast<T *>(::operator new (Bytes, std::align_val_t{ alignof(T) }));
-  } else
-#endif// __cpp_aligned_new
-  {
-    return static_cast<T *>(::operator new(Bytes));
-  }
+  const size_t bytes{ get_size_of_n<sizeof(T)>(count) };
+
+  return static_cast<T *>(::operator new(bytes));
 }
 
 template<class T>
 class SmallVector {// store array with various indexing options
 public:
   SmallVector() = default;// construct empty ValArr
-  explicit SmallVector(size_t count) {
-    _size = 0;
-    _capacity = count;
-
+  explicit SmallVector(size_t count) : _capacity(count) {
     grow(count);
   }
-  SmallVector(const T &val, size_t count) {
-    _size = count;
-    _capacity = count;
-
+  SmallVector(const T &val, size_t count) : _size(count), _capacity(count) {
     grow(count, &val);
   }
-  SmallVector(const T *ptr, size_t count) {
-    _size = count;
-    _capacity = count;
-
+  SmallVector(const T *ptr, size_t count) : _size(count), _capacity(count) {
     grow(count, ptr, 1);
   }
-  SmallVector(const SmallVector &right) {
-    _size = right._size;
-    _capacity = right._size;
-
-    grow(right._capacity, right._ptr, 1);
+  SmallVector(const SmallVector &right) : _size(right._size), _capacity(right._size) {
+    grow(right._size, right._ptr, 1);
   }
   SmallVector(SmallVector &&right) noexcept {
-    init();
     assign_rv(std::move(right));
   }
 
@@ -77,13 +57,15 @@ public:
     return *this;
   }
 
-  void assign_rv(SmallVector &&right) {
+  void assign_rv(SmallVector &&right) noexcept {
     if (this != std::addressof(right)) {// clear this and steal from right
-      deallocate();
+      delete _ptr;
       _ptr = right._ptr;
       _size = right._size;
       _capacity = right._capacity;
-      right.init();
+      right._size = 0;
+      right._capacity = 0;
+      right._ptr = nullptr;
     }
   }
 
@@ -95,7 +77,7 @@ public:
   }
 
   ~SmallVector() noexcept {
-    deallocate();
+    delete _ptr;
   }
 
   SmallVector &operator=(const SmallVector &right) {
@@ -109,25 +91,39 @@ public:
     return *this;
   }
 
-  void resize(size_t newsize) {// determine new length, filling with _Ty() elements
+  void copy(const SmallVector &right) {
+    if (this != std::addressof(right)) {
+      _size = right._size;
+      if (right._size >= _capacity) {
+        _capacity = right._size;
+        grow(right._capacity, right._ptr, 1);
+      } else {
+        for (size_t idx{ 0 }; idx < _size; ++idx) {
+          _ptr[idx] = right._ptr[idx];
+        }
+      }
+    }
+  }
+
+  void resize(const size_t newsize) {// determine new length, filling with _Ty() elements
     resize(newsize, 0);
   }
 
-  void resize(size_t newsize, T val) {// determine new length, filling with _Val elements
+  void resize(const size_t newsize, T val) {// determine new length, filling with _Val elements
     if (newsize > _size) {
       if (newsize > _capacity) {
-        T *_temp = allocate_for_delete<T>(newsize);
+        T *_temp{ allocate_for_delete<T>(newsize) };
 
-        for (size_t Idx = 0; Idx < _size; ++Idx) {
-          _temp[Idx] = _ptr[Idx];
+        for (size_t idx{ 0 }; idx < _size; ++idx) {
+          _temp[idx] = _ptr[idx];
         }
         delete _ptr;
         _ptr = std::move(_temp);
 
         _capacity = newsize;
       }
-      for (size_t Idx = _size; Idx < newsize; ++Idx) {
-        _ptr[Idx] = val;
+      for (size_t idx{ _size }; idx < newsize; ++idx) {
+        _ptr[idx] = val;
       }
       _size = newsize;
     }
@@ -152,7 +148,7 @@ public:
     _ptr[_size++] = val;
   }
 
-  void pop_back() {
+  void pop_back() noexcept {
     if (_size > 0) {
       _size--;
     }
@@ -161,25 +157,25 @@ public:
   void reserve(size_t capacity) {
     if (_capacity < capacity) {
       _capacity = capacity;
-      T *_temp = allocate_for_delete<T>(capacity);
+      T *_temp{ allocate_for_delete<T>(capacity) };
 
-      for (size_t Idx = 0; Idx < _size; ++Idx) {
-        _temp[Idx] = _ptr[Idx];
+      for (size_t idx{ 0 }; idx < _size; ++idx) {
+        _temp[idx] = _ptr[idx];
       }
       delete _ptr;
       _ptr = _temp;
     }
   }
 
-  void clear() {
+  void clear() noexcept {
     _size = 0;
   }
 
-  [[nodiscard]] bool empty() const {
+  [[nodiscard]] bool empty() const noexcept {
     return _size == 0;
   }
 
-  [[nodiscard]] size_t capacity() const {
+  [[nodiscard]] size_t capacity() const noexcept {
     return _capacity;
   }
 
@@ -196,37 +192,25 @@ public:
   }
 
 private:
-  void grow(size_t new_capacity) {// allocate space for _Count elements and fill with default values
+  void grow(const size_t new_capacity) {// allocate space for _Count elements and fill with default values
     delete _ptr;
     _ptr = allocate_for_delete<T>(new_capacity);
-    for (size_t Idx = 0; Idx < new_capacity; ++Idx) {
-      _ptr[Idx] = 0;
+    for (size_t idx{ 0 }; idx < new_capacity; ++idx) {
+      _ptr[idx] = 0;
     }
   }
 
-  void grow(size_t new_capacity, const T *ptr, size_t inc) {
+  void grow(const size_t new_capacity, const T *ptr, const size_t inc) {
     delete _ptr;
     _ptr = allocate_for_delete<T>(new_capacity);
-    for (size_t Idx = 0; Idx < new_capacity; ++Idx, ptr += inc) {
-      _ptr[Idx] = *ptr;
+    for (size_t idx = 0; idx < new_capacity; ++idx, ptr += inc) {
+      _ptr[idx] = *ptr;
     }
   }
 
-  void init() noexcept {
-    _size = 0;
-    _capacity = 0;
-    _ptr = nullptr;
-  }
-
-  void deallocate() noexcept {
-    delete _ptr;
-
-    init();
-  }
-
-  T *_ptr = nullptr;// current storage reserved for array
-  size_t _size = 0;// current length of sequence
-  size_t _capacity = 0;// current capacity of sequence
+  T *_ptr{ nullptr };// current storage reserved for array
+  size_t _size{ 0 };// current length of sequence
+  size_t _capacity{ 0 };// current capacity of sequence
 };
 
 }// namespace BigMath
