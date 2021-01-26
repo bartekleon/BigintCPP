@@ -90,17 +90,15 @@ Bigint &Bigint::absolute_addition(const Bigint &right) {
 }
 
 Bigint &Bigint::absolute_subtraction(const Bigint &right) {
-  int32_t *ptr_right{ right.number.begin() };
-  int32_t *ptr_right_end{ right.number.end() };
-
   if (compare(right, true) == -1) {
-    const Bigint new_right = *this;
-    ptr_right = new_right.number.begin();
-    ptr_right_end = new_right.number.end();
+    const Bigint new_right{ *this };
     number = right.number;
     positive = !positive;
+    return absolute_subtraction(new_right);
   }
 
+  int32_t *ptr_right{ right.number.begin() };
+  int32_t *ptr_right_end{ right.number.end() };
   int32_t *ptr_left{ number.begin() };
 
   int32_t diff{ 0 };
@@ -556,7 +554,7 @@ Bigint Bigint::operator/(const Bigint &right) const {
       get_fragment(left, frag_left, digits_right);
     }
 
-    for (uint8_t i{3};; i--) {
+    for (uint8_t i{ 3 };; i--) {
       if (frag_left >= look_up.at(i)) {
         temp.number.copy(look_up.at(i).number);
         digits_right = look_up_digits.at(i);
